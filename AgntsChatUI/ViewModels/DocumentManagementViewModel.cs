@@ -21,6 +21,12 @@
         [ObservableProperty]
         private ContextDocument? selectedDocument;
 
+        [ObservableProperty]
+        private string uploadTitle = string.Empty;
+
+        [ObservableProperty]
+        private bool isUploadDialogOpen;
+
         public ObservableCollection<ContextDocument> Documents { get; } = [];
 
         public event Action<ContextDocument>? DocumentSelected;
@@ -62,15 +68,77 @@
             if (files.Count > 0)
             {
                 IStorageFile file = files[0];
-                ContextDocument? document = await this._documentService.SaveDocumentAsync(file.Path.LocalPath);
-                if (document != null)
-                {
-                    this.Documents.Insert(0, document);
+                string defaultTitle = System.IO.Path.GetFileNameWithoutExtension(file.Name);
+                this.UploadTitle = defaultTitle;
+                this.IsUploadDialogOpen = true;
 
-                    // Auto-select the newly uploaded document
-                    this.SelectDocument(document);
-                }
+                // The actual upload will happen when user confirms in dialog
+                this._pendingFilePath = file.Path.LocalPath;
             }
+        }
+
+        private string _pendingFilePath = string.Empty;
+
+        [RelayCommand]
+        private async Task ConfirmUpload()
+        {
+            if (string.IsNullOrWhiteSpace(this._pendingFilePath))
+            {
+                return;
+            }
+
+            string title = string.IsNullOrWhiteSpace(this.UploadTitle) ? null : this.UploadTitle.Trim();
+            ContextDocument? document = await this._documentService.SaveDocumentAsync(this._pendingFilePath, title);
+
+            if (document != null)
+            {
+                this.Documents.Insert(0, document);
+                this.SelectDocument(document);
+            }
+
+            this.IsUploadDialogOpen = false;
+            this.UploadTitle = string.Empty;
+            this._pendingFilePath = string.Empty;
+        }
+
+        [RelayCommand]
+        private void CancelUpload()
+        {
+            this.IsUploadDialogOpen = false;
+            this.UploadTitle = string.Empty;
+            this._pendingFilePath = string.Empty;
+        }
+
+        [RelayCommand]
+        private void EditDocumentTitle(ContextDocument document)
+        {
+            document.IsEditingTitle = true;
+        }
+
+        [RelayCommand]
+        private async Task SaveDocumentTitle(ContextDocument document)
+        {
+            if (!string.IsNullOrWhiteSpace(document.Title))
+            {
+                await this._documentService.UpdateDocumentTitleAsync(document.Id, document.Title);
+            }
+            document.IsEditingTitle = false;
+        }
+
+        [RelayCommand]
+        private void CancelEditTitle(ContextDocument document)
+        {
+            // Reload the document to revert changes
+            _ = Task.Run(async () =>
+            {
+                System.Collections.Generic.IEnumerable<ContextDocument> documents = await this._documentService.LoadDocumentsAsync();
+                ContextDocument? originalDoc = documents.FirstOrDefault(d => d.Id == document.Id);
+                if (originalDoc != null)
+                {
+                    document.Title = originalDoc.Title;
+                }
+                document.IsEditingTitle = false;
+            });
         }
 
         [RelayCommand]
