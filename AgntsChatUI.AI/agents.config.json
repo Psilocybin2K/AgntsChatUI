@@ -1,0 +1,8 @@
+[
+    {
+        "Name": "TestCaseGeneratorAgent",
+        "Description": "Write Gherkin formatted Test Cases",
+        "InstructionsPath": "PromptTemplates\\Instructions\\TestCaseGenerator.md",
+        "PromptyPath": "PromptTemplates\\Personas\\TestCaseGenerator.prompty"
+    }
+]

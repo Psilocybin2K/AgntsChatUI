@@ -12,4 +12,14 @@
     <PackageReference Include="Microsoft.SemanticKernel.Prompty" Version="1.57.0-beta" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="PromptTemplates\Instructions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PromptTemplates\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

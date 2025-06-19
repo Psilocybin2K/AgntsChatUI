@@ -1,42 +1,30 @@
 ﻿namespace AgntsChatUI.AI
 {
+    using System.Text.Json;
+
     using Microsoft.SemanticKernel;
     using Microsoft.SemanticKernel.Agents;
-    using Microsoft.SemanticKernel.ChatCompletion;
     using Microsoft.SemanticKernel.PromptTemplates.Liquid;
     using Microsoft.SemanticKernel.Prompty;
 
-    public class ChatAgent(ChatCompletionAgent innerAgent)
+    public class AgentDefinition
     {
-        public async IAsyncEnumerable<string> InvokeStreamingAsyncInvokeAsync(string input,
-            ChatHistory history)
-        {
-            if (innerAgent == null)
-            {
-                throw new InvalidOperationException("Agent is not initialized.");
-            }
-
-            ChatHistoryAgentThread _thread = new ChatHistoryAgentThread(history);
-
-            IAsyncEnumerable<AgentResponseItem<StreamingChatMessageContent>> result = innerAgent.InvokeStreamingAsync(input, _thread, new AgentInvokeOptions()
-            {
-                KernelArguments = new KernelArguments()
-                {
-                    ["message"] = input
-                }
-            });
-
-            await foreach (AgentResponseItem<StreamingChatMessageContent> item in result)
-            {
-                yield return item.Message.Content ?? throw new InvalidOperationException("Message content is null.");
-            }
-
-        }
+        public string Description { get; set; }
+        public string InstructionsPath { get; set; }
+        public string Name { get; set; }
+        public string PromptyPath { get; set; }
     }
 
     public class ChatAgentFactory
     {
-        public static ChatCompletionAgent CreateAgent(string name,
+        private readonly IList<ChatAgent> _agents;
+
+        public ChatAgentFactory()
+        {
+            this._agents = [.. LoadAgentsFromConfig()];
+        }
+
+        public static ChatAgent CreateAgent(string name,
             string description,
             string instructionsPath,
             string promptyPath)
@@ -60,7 +48,25 @@
                     .Build()
             };
 
-            return agent;
+            ChatAgent chatAgent = new ChatAgent(agent);
+
+            return chatAgent;
+        }
+
+        public static IEnumerable<ChatAgent> LoadAgentsFromConfig()
+        {
+            string config = File.ReadAllText("agents.config.json");
+            AgentDefinition[]? agentDefinitions = JsonSerializer.Deserialize<AgentDefinition[]>(config);
+
+            IEnumerable<ChatAgent> agents = agentDefinitions.Select(a =>
+                CreateAgent(a.Name, a.Description, a.InstructionsPath, a.PromptyPath));
+
+            return agents;
+        }
+
+        public void AddAgent(ChatAgent agent)
+        {
+            this._agents.Add(agent);
         }
     }
 }
