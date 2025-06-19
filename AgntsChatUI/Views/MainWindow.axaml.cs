@@ -6,7 +6,7 @@ namespace AgntsChatUI.Views
     {
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }
