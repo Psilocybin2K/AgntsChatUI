@@ -195,17 +195,17 @@
             return $"{len:0.##} {sizes[order]}";
         }
 
-        private static DocumentType GetFileType(string extension)
+        private static UploadedDocumentType GetFileType(string extension)
         {
             return extension.ToLowerInvariant() switch
             {
-                ".pdf" => DocumentType.Pdf,
-                ".doc" or ".docx" => DocumentType.Word,
-                ".xls" or ".xlsx" => DocumentType.Excel,
-                ".ppt" or ".pptx" => DocumentType.PowerPoint,
-                ".txt" => DocumentType.Text,
-                ".jpg" or ".jpeg" or ".png" or ".gif" or ".bmp" => DocumentType.Image,
-                _ => DocumentType.Other
+                ".pdf" => UploadedDocumentType.Pdf,
+                ".doc" or ".docx" => UploadedDocumentType.Word,
+                ".xls" or ".xlsx" => UploadedDocumentType.Excel,
+                ".ppt" or ".pptx" => UploadedDocumentType.PowerPoint,
+                ".txt" => UploadedDocumentType.Text,
+                ".jpg" or ".jpeg" or ".png" or ".gif" or ".bmp" => UploadedDocumentType.Image,
+                _ => UploadedDocumentType.Other
             };
         }
     }

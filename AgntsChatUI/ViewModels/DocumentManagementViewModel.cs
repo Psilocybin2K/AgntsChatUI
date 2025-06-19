@@ -87,7 +87,7 @@
                 return;
             }
 
-            string title = string.IsNullOrWhiteSpace(this.UploadTitle) ? null : this.UploadTitle.Trim();
+            string title = string.IsNullOrWhiteSpace(this.UploadTitle) ? "Unknown Document" : this.UploadTitle.Trim();
             ContextDocument? document = await this._documentService.SaveDocumentAsync(this._pendingFilePath, title);
 
             if (document != null)

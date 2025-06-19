@@ -2,7 +2,6 @@
 {
     using AgntsChatUI.Models;
 
-
     public partial class MainWindowViewModel : ViewModelBase
     {
         public DocumentManagementViewModel DocumentManagementViewModel { get; }
@@ -11,7 +10,7 @@
         public MainWindowViewModel()
         {
             this.DocumentManagementViewModel = new DocumentManagementViewModel();
-            this.ChatViewModel = new ChatViewModel();
+            this.ChatViewModel = new ChatViewModel(this.DocumentManagementViewModel);
 
             // Subscribe to document selection changes
             this.DocumentManagementViewModel.DocumentSelected += this.OnDocumentSelected;
@@ -23,4 +22,5 @@
             // when a document is selected
         }
     }
+
 }

@@ -68,49 +68,67 @@
 								<Grid>
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="Auto"/>
+										<ColumnDefinition Width="Auto"/>
 										<ColumnDefinition Width="*"/>
 										<ColumnDefinition Width="Auto"/>
 									</Grid.ColumnDefinitions>
 
+									<!-- Include in Chat Checkbox -->
+									<CheckBox Grid.Column="0"
+                                              IsChecked="{Binding IsIncludedInChat}"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,8,0"
+                                              ToolTip.Tip="Include in chat context"/>
+
 									<!-- File Icon -->
-									<Border Grid.Column="0" Width="40" Height="40" CornerRadius="8" Background="{Binding FileTypeColor}" Margin="0,0,12,0">
+									<Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{Binding FileTypeColor}" Margin="0,0,12,0">
 										<TextBlock Text="{Binding FileTypeIcon}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 									</Border>
 
-									<!-- Document Info -->
-									<StackPanel Grid.Column="1">
-										<!-- Title Display Mode -->
-										<TextBlock IsVisible="{Binding !IsEditingTitle}"
-                                                   Text="{Binding Title}"
-                                                   FontWeight="Medium"
-                                                   Foreground="#202124"
-                                                   Margin="0,0,0,2"
-                                                   TextTrimming="CharacterEllipsis"/>
+									<!-- Document Info (Clickable for selection) -->
+									<Button Grid.Column="2"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Command="{Binding $parent[UserControl].DataContext.SelectDocumentCommand}"
+                                            CommandParameter="{Binding}">
+										<StackPanel>
+											<!-- Title Display Mode -->
+											<TextBlock IsVisible="{Binding !IsEditingTitle}"
+                                                       Text="{Binding Title}"
+                                                       FontWeight="Medium"
+                                                       Foreground="#202124"
+                                                       Margin="0,0,0,2"
+                                                       TextTrimming="CharacterEllipsis"/>
 
-										<!-- Title Edit Mode -->
-										<TextBox IsVisible="{Binding IsEditingTitle}"
-                                                 Text="{Binding Title}"
-                                                 FontWeight="Medium"
-                                                 Foreground="#202124"
-                                                 Background="White"
-                                                 BorderBrush="#4285f4"
-                                                 BorderThickness="1"
-                                                 CornerRadius="4"
-                                                 Padding="4"
-                                                 Margin="0,0,0,2">
-											<TextBox.KeyBindings>
-												<KeyBinding Gesture="Enter" Command="{Binding $parent[UserControl].DataContext.SaveDocumentTitleCommand}" CommandParameter="{Binding}"/>
-												<KeyBinding Gesture="Escape" Command="{Binding $parent[UserControl].DataContext.CancelEditTitleCommand}" CommandParameter="{Binding}"/>
-											</TextBox.KeyBindings>
-										</TextBox>
+											<!-- Title Edit Mode -->
+											<TextBox IsVisible="{Binding IsEditingTitle}"
+                                                     Text="{Binding Title}"
+                                                     FontWeight="Medium"
+                                                     Foreground="#202124"
+                                                     Background="White"
+                                                     BorderBrush="#4285f4"
+                                                     BorderThickness="1"
+                                                     CornerRadius="4"
+                                                     Padding="4"
+                                                     Margin="0,0,0,2">
+												<TextBox.KeyBindings>
+													<KeyBinding Gesture="Enter" Command="{Binding $parent[UserControl].DataContext.SaveDocumentTitleCommand}" CommandParameter="{Binding}"/>
+													<KeyBinding Gesture="Escape" Command="{Binding $parent[UserControl].DataContext.CancelEditTitleCommand}" CommandParameter="{Binding}"/>
+												</TextBox.KeyBindings>
+											</TextBox>
 
-										<TextBlock Text="{Binding FileName}" FontSize="11" Foreground="#5f6368" Margin="0,0,0,2"/>
-										<TextBlock Text="{Binding Size}" FontSize="12" Foreground="#5f6368"/>
-										<TextBlock Text="{Binding DateAdded, StringFormat='Added {0:MMM d, yyyy}'}" FontSize="11" Foreground="#5f6368"/>
-									</StackPanel>
+											<TextBlock Text="{Binding FileName}" FontSize="11" Foreground="#5f6368" Margin="0,0,0,2"/>
+											<TextBlock Text="{Binding Size}" FontSize="12" Foreground="#5f6368"/>
+											<TextBlock Text="{Binding DateAdded, StringFormat='Added {0:MMM d, yyyy}'}" FontSize="11" Foreground="#5f6368"/>
+										</StackPanel>
+									</Button>
 
 									<!-- Action Buttons -->
-									<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+									<StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4">
 										<!-- Edit Title Button -->
 										<Button IsVisible="{Binding !IsEditingTitle}"
                                                 Width="24" Height="24"
@@ -171,15 +189,6 @@
                                                   Width="16" Height="16"/>
 										</Button>
 									</StackPanel>
-
-									<!-- Selection Button (Invisible but covers the whole area) -->
-									<Button Grid.ColumnSpan="3"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            Command="{Binding $parent[UserControl].DataContext.SelectDocumentCommand}"
-                                            CommandParameter="{Binding}"/>
 								</Grid>
 							</Border>
 						</DataTemplate>

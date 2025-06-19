@@ -297,7 +297,7 @@
 			<Border Grid.Row="2" Padding="16,24" BorderBrush="#e8eaed" BorderThickness="0,1,0,0" Background="White">
 				<StackPanel Spacing="12">
 					<!-- Quick Reactions -->
-					<StackPanel Orientation="Horizontal" Spacing="4">
+					<!--<StackPanel Orientation="Horizontal" Spacing="4">
 						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
 							<TextBlock Text="👍" FontSize="16"/>
 						</Border>
@@ -316,7 +316,7 @@
 						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
 							<TextBlock Text="👏" FontSize="16"/>
 						</Border>
-					</StackPanel>
+					</StackPanel>-->
 
 					<!-- Input Controls -->
 					<Grid>

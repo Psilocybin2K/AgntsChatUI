@@ -4,7 +4,7 @@
 
     using CommunityToolkit.Mvvm.ComponentModel;
 
-    public partial class Message : ObservableObject
+    public partial class MessageResult : ObservableObject
     {
         public string Id { get; }
         public string Avatar { get; }
@@ -21,7 +21,7 @@
         [ObservableProperty]
         private bool isEditing;
 
-        public Message(string avatar, string content, DateTime time, bool isSent, bool hasFile = false, string fileName = "", string fileSize = "")
+        public MessageResult(string avatar, string content, DateTime time, bool isSent, bool hasFile = false, string fileName = "", string fileSize = "")
         {
             this.Id = Guid.NewGuid().ToString();
             this.Avatar = avatar;

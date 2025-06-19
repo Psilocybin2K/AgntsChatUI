@@ -11,7 +11,7 @@
         public string Size { get; }
         public DateTime DateAdded { get; }
         public string FilePath { get; }
-        public DocumentType FileType { get; }
+        public UploadedDocumentType FileType { get; }
 
         [ObservableProperty]
         private string title;
@@ -19,7 +19,10 @@
         [ObservableProperty]
         private bool isEditingTitle;
 
-        public ContextDocument(string id, string fileName, string size, DateTime dateAdded, string filePath, DocumentType fileType, string? customTitle = null)
+        [ObservableProperty]
+        private bool isIncludedInChat;
+
+        public ContextDocument(string id, string fileName, string size, DateTime dateAdded, string filePath, UploadedDocumentType fileType, string? customTitle = null, bool isIncludedInChat = false)
         {
             this.Id = id;
             this.FileName = fileName;
@@ -28,27 +31,28 @@
             this.FilePath = filePath;
             this.FileType = fileType;
             this.Title = customTitle ?? System.IO.Path.GetFileNameWithoutExtension(fileName);
+            this.IsIncludedInChat = isIncludedInChat;
         }
 
         public string FileTypeIcon => this.FileType switch
         {
-            DocumentType.Pdf => "📄",
-            DocumentType.Word => "📝",
-            DocumentType.Excel => "📊",
-            DocumentType.PowerPoint => "📋",
-            DocumentType.Text => "📄",
-            DocumentType.Image => "🖼️",
+            UploadedDocumentType.Pdf => "📄",
+            UploadedDocumentType.Word => "📝",
+            UploadedDocumentType.Excel => "📊",
+            UploadedDocumentType.PowerPoint => "📋",
+            UploadedDocumentType.Text => "📄",
+            UploadedDocumentType.Image => "🖼️",
             _ => "📁"
         };
 
         public string FileTypeColor => this.FileType switch
         {
-            DocumentType.Pdf => "#ea4335",
-            DocumentType.Word => "#4285f4",
-            DocumentType.Excel => "#34a853",
-            DocumentType.PowerPoint => "#fbbc05",
-            DocumentType.Text => "#5f6368",
-            DocumentType.Image => "#9c27b0",
+            UploadedDocumentType.Pdf => "#ea4335",
+            UploadedDocumentType.Word => "#4285f4",
+            UploadedDocumentType.Excel => "#34a853",
+            UploadedDocumentType.PowerPoint => "#fbbc05",
+            UploadedDocumentType.Text => "#5f6368",
+            UploadedDocumentType.Image => "#9c27b0",
             _ => "#757575"
         };
     }

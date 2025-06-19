@@ -1,6 +1,6 @@
 ﻿namespace AgntsChatUI.Models
 {
-    public enum DocumentType
+    public enum UploadedDocumentType
     {
         Pdf,
         Word,
