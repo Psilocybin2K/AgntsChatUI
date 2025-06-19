@@ -26,7 +26,7 @@
 
             await foreach (AgentResponseItem<StreamingChatMessageContent> item in result)
             {
-                yield return item.Message.Content ?? throw new InvalidOperationException("Message content is null.");
+                yield return item.Message.Content;
             }
 
         }

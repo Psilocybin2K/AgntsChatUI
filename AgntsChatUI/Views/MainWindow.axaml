@@ -39,13 +39,69 @@
 						<ColumnDefinition Width="Auto"/>
 					</Grid.ColumnDefinitions>
 
-					<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-						<Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
-							<TextBlock Text="🤖" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-						</Border>
-						<StackPanel>
-							<TextBlock Text="Document Assistant" FontSize="18" FontWeight="Medium" Foreground="#202124"/>
-							<TextBlock Text="{Binding DocumentManagementViewModel.SelectedDocument.Title, FallbackValue='● Ready to analyze documents', TargetNullValue='● Ready to analyze documents'}" FontSize="13" Foreground="#34a853"/>
+					<StackPanel Grid.Column="0" Spacing="12">
+						<!-- Agent Info Row -->
+						<StackPanel Orientation="Horizontal" Spacing="12">
+							<Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
+								<TextBlock Text="🤖" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+							</Border>
+							<StackPanel>
+								<TextBlock Text="Document Assistant" FontSize="18" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="{Binding DocumentManagementViewModel.SelectedDocument.Title, FallbackValue='● Ready to analyze documents', TargetNullValue='● Ready to analyze documents'}" FontSize="13" Foreground="#34a853"/>
+							</StackPanel>
+						</StackPanel>
+
+						<!-- Agent Selection Row -->
+						<StackPanel Orientation="Horizontal" Spacing="8" Margin="52,0,0,0">
+							<TextBlock Text="Active Agent:" FontSize="12" Foreground="#5f6368" VerticalAlignment="Center"/>
+							<ComboBox ItemsSource="{Binding ChatViewModel.AvailableAgents}"
+									  SelectedItem="{Binding ChatViewModel.SelectedAgent}"
+									  DisplayMemberBinding="{Binding Name}"
+									  MinWidth="200"
+									  Background="White"
+									  BorderBrush="#dadce0"
+									  BorderThickness="1"
+									  CornerRadius="4"
+									  Padding="8,4"
+									  FontSize="12">
+								<ComboBox.Styles>
+									<Style Selector="ComboBox:focus-within /template/ Border#Background">
+										<Setter Property="BorderBrush" Value="#4285f4"/>
+										<Setter Property="BorderThickness" Value="2"/>
+									</Style>
+									<Style Selector="ComboBox:pointerover /template/ Border#Background">
+										<Setter Property="BorderBrush" Value="#4285f4"/>
+									</Style>
+								</ComboBox.Styles>
+							</ComboBox>
+
+							<!-- Loading indicator for agent selection -->
+							<Border IsVisible="{Binding ChatViewModel.IsLoadingAgents}"
+									Width="16" Height="16"
+									VerticalAlignment="Center">
+								<Border Width="12" Height="12"
+										CornerRadius="6"
+										BorderBrush="#4285f4"
+										BorderThickness="2,2,0,0">
+									<Border.Styles>
+										<Style Selector="Border">
+											<Style.Animations>
+												<Animation Duration="0:0:1" IterationCount="INFINITE">
+													<KeyFrame Cue="0%">
+														<Setter Property="RotateTransform.Angle" Value="0"/>
+													</KeyFrame>
+													<KeyFrame Cue="100%">
+														<Setter Property="RotateTransform.Angle" Value="360"/>
+													</KeyFrame>
+												</Animation>
+											</Style.Animations>
+										</Style>
+									</Border.Styles>
+									<Border.RenderTransform>
+										<RotateTransform/>
+									</Border.RenderTransform>
+								</Border>
+							</Border>
 						</StackPanel>
 					</StackPanel>
 
@@ -296,28 +352,6 @@
 			<!-- Input Area -->
 			<Border Grid.Row="2" Padding="16,24" BorderBrush="#e8eaed" BorderThickness="0,1,0,0" Background="White">
 				<StackPanel Spacing="12">
-					<!-- Quick Reactions -->
-					<!--<StackPanel Orientation="Horizontal" Spacing="4">
-						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
-							<TextBlock Text="👍" FontSize="16"/>
-						</Border>
-						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
-							<TextBlock Text="❤️" FontSize="16"/>
-						</Border>
-						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
-							<TextBlock Text="😂" FontSize="16"/>
-						</Border>
-						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
-							<TextBlock Text="😮" FontSize="16"/>
-						</Border>
-						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
-							<TextBlock Text="😢" FontSize="16"/>
-						</Border>
-						<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="16" Padding="4,8">
-							<TextBlock Text="👏" FontSize="16"/>
-						</Border>
-					</StackPanel>-->
-
 					<!-- Input Controls -->
 					<Grid>
 						<Grid.ColumnDefinitions>

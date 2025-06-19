@@ -1,26 +1,44 @@
 ﻿namespace AgntsChatUI.ViewModels
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
 
+    using AgntsChatUI.AI;
     using AgntsChatUI.Models;
 
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
 
+    using Microsoft.SemanticKernel.ChatCompletion;
+
     public partial class ChatViewModel : ViewModelBase
     {
         private readonly DocumentManagementViewModel _documentManagementViewModel;
+        private readonly ChatHistory _chatHistory;
+        private readonly ChatAgentFactory _agentFactory;
 
         [ObservableProperty]
         private string messageText = string.Empty;
 
         [ObservableProperty]
         private bool isTyping;
+
+        [ObservableProperty]
+        private bool isLoadingAgents;
+
+        [ObservableProperty]
+        private ObservableCollection<AgentDefinition> availableAgents = [];
+
+        [ObservableProperty]
+        private AgentDefinition? selectedAgent;
+
+        [ObservableProperty]
+        private ChatAgent? currentChatAgent;
 
         public ObservableCollection<MessageResult> Messages { get; } = [];
 
@@ -33,13 +51,116 @@
         public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel)
         {
             this._documentManagementViewModel = documentManagementViewModel ?? new DocumentManagementViewModel();
-            this.InitializeMessages();
+            this._chatHistory = new ChatHistory();
+            this._agentFactory = new ChatAgentFactory();
+
+            this.InitializeAsync();
+        }
+
+        private async void InitializeAsync()
+        {
+            await this.LoadAgentsAsync();
+            this.InitializeWelcomeMessage();
+        }
+
+        private async Task LoadAgentsAsync()
+        {
+            this.IsLoadingAgents = true;
+
+            try
+            {
+                IEnumerable<ChatAgent> agents = ChatAgentFactory.LoadAgentsFromConfig();
+                List<AgentDefinition> agentDefinitions = new List<AgentDefinition>();
+
+                // Extract agent definitions from config
+                if (File.Exists("agents.config.json"))
+                {
+                    string config = await File.ReadAllTextAsync("agents.config.json");
+                    AgentDefinition[]? definitions = System.Text.Json.JsonSerializer.Deserialize<AgentDefinition[]>(config);
+                    if (definitions != null)
+                    {
+                        agentDefinitions.AddRange(definitions);
+                    }
+                }
+
+                this.AvailableAgents = new ObservableCollection<AgentDefinition>(agentDefinitions);
+
+                if (this.AvailableAgents.Any())
+                {
+                    this.SelectedAgent = this.AvailableAgents.First();
+                    await this.UpdateCurrentAgentAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error or show notification
+                AgentDefinition errorAgent = new AgentDefinition
+                {
+                    Name = "Error Loading Agents",
+                    Description = ex.Message
+                };
+                this.AvailableAgents = new ObservableCollection<AgentDefinition> { errorAgent };
+            }
+            finally
+            {
+                this.IsLoadingAgents = false;
+            }
+        }
+
+        partial void OnSelectedAgentChanged(AgentDefinition? value)
+        {
+            if (value != null)
+            {
+                _ = UpdateCurrentAgentAsync();
+            }
+        }
+
+        private async Task UpdateCurrentAgentAsync()
+        {
+            if (this.SelectedAgent == null)
+            {
+                return;
+            }
+
+            try
+            {
+                this.CurrentChatAgent = ChatAgentFactory.CreateAgent(
+                    this.SelectedAgent.Name,
+                    this.SelectedAgent.Description,
+                    this.SelectedAgent.InstructionsPath,
+                    this.SelectedAgent.PromptyPath
+                );
+
+                // Add agent switch message
+                if (this.Messages.Any())
+                {
+                    MessageResult switchMessage = new MessageResult(
+                        "🤖",
+                        $"Switched to {this.SelectedAgent.Name}. How can I help you?",
+                        DateTime.Now,
+                        false
+                    );
+                    this.Messages.Add(switchMessage);
+                    ScrollToBottomRequested?.Invoke();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageResult errorMessage = new MessageResult(
+                    "❌",
+                    $"Failed to load agent '{this.SelectedAgent.Name}': {ex.Message}",
+                    DateTime.Now,
+                    false
+                );
+                this.Messages.Add(errorMessage);
+                ScrollToBottomRequested?.Invoke();
+            }
         }
 
         [RelayCommand]
         private async Task SendMessage()
         {
-            if (string.IsNullOrWhiteSpace(this.MessageText))
+            if (string.IsNullOrWhiteSpace(this.MessageText) || this.CurrentChatAgent == null)
             {
                 return;
             }
@@ -49,43 +170,66 @@
 
             MessageResult userMessage = new MessageResult(
                 "ME",
-                originalMessage, // Display only the user's original message
+                originalMessage,
                 DateTime.Now,
-                true);
+                true
+            );
 
             this.Messages.Add(userMessage);
+            this._chatHistory.AddUserMessage(messageWithContext);
             this.MessageText = string.Empty;
 
-            // Scroll to bottom after adding user message
             ScrollToBottomRequested?.Invoke();
 
-            // Show typing indicator
             this.IsTyping = true;
-
-            // Scroll to bottom to show typing indicator
             ScrollToBottomRequested?.Invoke();
 
-            // Simulate response delay
-            await Task.Delay(2000);
+            try
+            {
+                MessageResult botMessage = new MessageResult(
+                    "🤖",
+                    "",
+                    DateTime.Now,
+                    false
+                );
+                this.Messages.Add(botMessage);
 
-            // Generate response using message with document context
-            string response = this.GenerateResponse(messageWithContext);
-            MessageResult botMessage = new MessageResult(
-                "JD",
-                response,
-                DateTime.Now,
-                false);
+                StringBuilder responseBuilder = new StringBuilder();
 
-            this.Messages.Add(botMessage);
-            this.IsTyping = false;
+                await foreach (string chunk in this.CurrentChatAgent.InvokeStreamingAsyncInvokeAsync(messageWithContext, this._chatHistory))
+                {
+                    responseBuilder.Append(chunk);
+                    botMessage.Content = responseBuilder.ToString();
 
-            // Scroll to bottom after adding bot response
-            ScrollToBottomRequested?.Invoke();
+                    // Scroll to bottom periodically during streaming
+                    if (responseBuilder.Length % 50 == 0)
+                    {
+                        ScrollToBottomRequested?.Invoke();
+                    }
+                }
+
+                this._chatHistory.AddAssistantMessage(botMessage.Content);
+            }
+            catch (Exception ex)
+            {
+                MessageResult errorMessage = new MessageResult(
+                    "❌",
+                    $"Error: {ex.Message}",
+                    DateTime.Now,
+                    false
+                );
+                this.Messages.Add(errorMessage);
+            }
+            finally
+            {
+                this.IsTyping = false;
+                ScrollToBottomRequested?.Invoke();
+            }
         }
 
         private async Task<string> BuildMessageWithDocumentContext(string userMessage)
         {
-            System.Collections.Generic.List<ContextDocument> includedDocuments = this._documentManagementViewModel.Documents
+            List<ContextDocument> includedDocuments = this._documentManagementViewModel.Documents
                 .Where(doc => doc.IsIncludedInChat)
                 .ToList();
 
@@ -162,46 +306,15 @@
             this.Messages.Remove(message);
         }
 
-        private string GenerateResponse(string messageWithContext)
+        private void InitializeWelcomeMessage()
         {
-            // Check if message contains document context
-            bool hasDocumentContext = messageWithContext.Contains("--- DOCUMENT CONTEXT ---");
-
-            string[] contextAwareResponses = new[]
-            {
-                "Based on the documents you've shared, I can see that...",
-                "Looking at your document content, it appears that...",
-                "From the information in your documents, I understand...",
-                "The documents provide good context. Let me help with...",
-                "I've reviewed the document content you included...",
-                "Based on the document context provided..."
-            };
-
-            string[] generalResponses = new[]
-            {
-                "That's interesting! Tell me more.",
-                "I understand what you mean.",
-                "Thanks for sharing that with me.",
-                "That sounds great!",
-                "I see your point.",
-                "How do you feel about that?",
-                "That makes sense.",
-                "I appreciate you letting me know."
-            };
-
-            Random random = new Random();
-            string[] responsesToUse = hasDocumentContext ? contextAwareResponses : generalResponses;
-            return responsesToUse[random.Next(responsesToUse.Length)];
-        }
-
-        private void InitializeMessages()
-        {
-            this.Messages.Add(new MessageResult("JD", "Hey! How's the project coming along?", DateTime.Now.AddMinutes(-30), false));
-            this.Messages.Add(new MessageResult("ME", "Going well! Just finished the main features. Should be ready for review tomorrow.", DateTime.Now.AddMinutes(-28), true));
-            this.Messages.Add(new MessageResult("JD", "That sounds great! Let's schedule a demo session.", DateTime.Now.AddMinutes(-25), false));
-            this.Messages.Add(new MessageResult("JD", "Here's the design mockup we discussed", DateTime.Now.AddMinutes(-24), false, hasFile: true, fileName: "design-mockup-v2.pdf", fileSize: "2.4 MB"));
-            this.Messages.Add(new MessageResult("ME", "Perfect! How about 3 PM tomorrow?", DateTime.Now.AddMinutes(-24), true));
+            MessageResult welcomeMessage = new MessageResult(
+                "🤖",
+                "Hello! I'm your document assistant. Upload documents using the panel on the left and I'll help you analyze and answer questions about them. Select different agents from the dropdown above to change my capabilities.",
+                DateTime.Now,
+                false
+            );
+            this.Messages.Add(welcomeMessage);
         }
     }
-
 }

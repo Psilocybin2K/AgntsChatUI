@@ -7,14 +7,6 @@
     using Microsoft.SemanticKernel.PromptTemplates.Liquid;
     using Microsoft.SemanticKernel.Prompty;
 
-    public class AgentDefinition
-    {
-        public string Description { get; set; }
-        public string InstructionsPath { get; set; }
-        public string Name { get; set; }
-        public string PromptyPath { get; set; }
-    }
-
     public class ChatAgentFactory
     {
         private readonly IList<ChatAgent> _agents;

@@ -22,4 +22,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="agents.config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -18,9 +18,7 @@
 
         private void OnDocumentSelected(ContextDocument document)
         {
-            // This could be used to update the chat context or perform other actions
-            // when a document is selected
+            // Document selection handling - could be used for additional chat context updates
         }
     }
-
 }
