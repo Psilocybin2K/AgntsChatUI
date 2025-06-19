@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AgntsChatUI.ViewModels"
+        xmlns:views="using:AgntsChatUI.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -19,105 +20,8 @@
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 
-		<!-- Document Sidebar -->
-		<Border Grid.Column="0" Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="0,0,1,0">
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="*"/>
-				</Grid.RowDefinitions>
-
-				<!-- Header -->
-				<Border Grid.Row="0" Padding="20" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
-					<StackPanel Orientation="Horizontal" Spacing="12">
-						<Border Width="32" Height="32" CornerRadius="16" Background="#4285f4">
-							<TextBlock Text="📁" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-						</Border>
-						<TextBlock Text="Documents" FontSize="22" FontWeight="Normal" Foreground="#202124" VerticalAlignment="Center"/>
-					</StackPanel>
-				</Border>
-
-				<!-- Upload Button -->
-				<Border Grid.Row="1" Margin="16" Padding="12" Background="#4285f4" CornerRadius="8">
-					<Button Content="Upload Document"
-                            Background="Transparent"
-                            Foreground="White"
-                            BorderThickness="0"
-                            HorizontalAlignment="Stretch"
-                            Command="{Binding ChatViewModel.UploadDocumentCommand}">
-						<Button.ContentTemplate>
-							<DataTemplate>
-								<StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-									<TextBlock Text="📤" FontSize="16"/>
-									<TextBlock Text="Upload Document" FontWeight="Medium"/>
-								</StackPanel>
-							</DataTemplate>
-						</Button.ContentTemplate>
-					</Button>
-				</Border>
-
-				<!-- Document Count -->
-				<Border Grid.Row="2" Padding="16" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
-					<TextBlock Text="{Binding ChatViewModel.Documents.Count, StringFormat='DOCUMENTS ({0})'}" FontSize="12" FontWeight="Medium" Foreground="#5f6368"/>
-				</Border>
-
-				<!-- Document List -->
-				<ScrollViewer Grid.Row="3" Padding="8">
-					<ItemsControl ItemsSource="{Binding ChatViewModel.Documents}">
-						<ItemsControl.ItemTemplate>
-							<DataTemplate>
-								<Border Padding="12,16" Margin="0,0,0,4" CornerRadius="8" Background="Transparent">
-									<Border.Styles>
-										<Style Selector="Border:pointerover">
-											<Setter Property="Background" Value="#e8f0fe"/>
-										</Style>
-									</Border.Styles>
-									<Button Background="Transparent"
-                                            BorderThickness="0"
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Stretch"
-                                            Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ChatViewModel.SelectDocumentCommand}"
-                                            CommandParameter="{Binding}">
-										<Grid>
-											<Grid.ColumnDefinitions>
-												<ColumnDefinition Width="Auto"/>
-												<ColumnDefinition Width="*"/>
-												<ColumnDefinition Width="Auto"/>
-											</Grid.ColumnDefinitions>
-
-											<Border Grid.Column="0" Width="40" Height="40" CornerRadius="8" Background="{Binding FileTypeColor}" Margin="0,0,12,0">
-												<TextBlock Text="{Binding FileTypeIcon}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-											</Border>
-
-											<StackPanel Grid.Column="1">
-												<TextBlock Text="{Binding Name}" FontWeight="Medium" Foreground="#202124" Margin="0,0,0,2" TextTrimming="CharacterEllipsis"/>
-												<TextBlock Text="{Binding Size}" FontSize="12" Foreground="#5f6368"/>
-												<TextBlock Text="{Binding DateAdded, StringFormat='Added {0:MMM d, yyyy}'}" FontSize="11" Foreground="#5f6368"/>
-											</StackPanel>
-
-											<Button Grid.Column="2"
-                                                    Width="24" Height="24"
-                                                    Background="Transparent"
-                                                    BorderThickness="0"
-                                                    CornerRadius="12"
-                                                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ChatViewModel.DeleteDocumentCommand}"
-                                                    CommandParameter="{Binding}">
-												<Path Data="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                                                      Fill="#5f6368"
-                                                      Stretch="Uniform"
-                                                      Width="16" Height="16"/>
-											</Button>
-										</Grid>
-									</Button>
-								</Border>
-							</DataTemplate>
-						</ItemsControl.ItemTemplate>
-					</ItemsControl>
-				</ScrollViewer>
-			</Grid>
-		</Border>
+		<!-- Document Management Component -->
+		<views:DocumentManagementView Grid.Column="0" DataContext="{Binding DocumentManagementViewModel}"/>
 
 		<!-- Main Chat Area -->
 		<Grid Grid.Column="1">
@@ -141,7 +45,7 @@
 						</Border>
 						<StackPanel>
 							<TextBlock Text="Document Assistant" FontSize="18" FontWeight="Medium" Foreground="#202124"/>
-							<TextBlock Text="{Binding ChatViewModel.SelectedDocument.Name, FallbackValue='● Ready to analyze documents'}" FontSize="13" Foreground="#34a853"/>
+							<TextBlock Text="{Binding DocumentManagementViewModel.SelectedDocument.Name, FallbackValue='● Ready to analyze documents'}" FontSize="13" Foreground="#34a853"/>
 						</StackPanel>
 					</StackPanel>
 
