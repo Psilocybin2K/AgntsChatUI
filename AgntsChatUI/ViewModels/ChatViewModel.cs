@@ -60,7 +60,6 @@
         private async void InitializeAsync()
         {
             await this.LoadAgentsAsync();
-            this.InitializeWelcomeMessage();
         }
 
         private async Task LoadAgentsAsync()
@@ -72,7 +71,6 @@
                 IEnumerable<ChatAgent> agents = ChatAgentFactory.LoadAgentsFromConfig();
                 List<AgentDefinition> agentDefinitions = new List<AgentDefinition>();
 
-                // Extract agent definitions from config
                 if (File.Exists("agents.config.json"))
                 {
                     string config = await File.ReadAllTextAsync("agents.config.json");
@@ -93,7 +91,6 @@
             }
             catch (Exception ex)
             {
-                // Log error or show notification
                 AgentDefinition errorAgent = new AgentDefinition
                 {
                     Name = "Error Loading Agents",
@@ -131,7 +128,6 @@
                     this.SelectedAgent.PromptyPath
                 );
 
-                // Add agent switch message
                 if (this.Messages.Any())
                 {
                     MessageResult switchMessage = new MessageResult(
@@ -201,7 +197,6 @@
                     responseBuilder.Append(chunk);
                     botMessage.Content = responseBuilder.ToString();
 
-                    // Scroll to bottom periodically during streaming
                     if (responseBuilder.Length % 50 == 0)
                     {
                         ScrollToBottomRequested?.Invoke();
@@ -304,17 +299,6 @@
         private void DeleteMessage(MessageResult message)
         {
             this.Messages.Remove(message);
-        }
-
-        private void InitializeWelcomeMessage()
-        {
-            MessageResult welcomeMessage = new MessageResult(
-                "🤖",
-                "Hello! I'm your document assistant. Upload documents using the panel on the left and I'll help you analyze and answer questions about them. Select different agents from the dropdown above to change my capabilities.",
-                DateTime.Now,
-                false
-            );
-            this.Messages.Add(welcomeMessage);
         }
     }
 }

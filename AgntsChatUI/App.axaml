@@ -2,8 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="AgntsChatUI.App"
              xmlns:local="using:AgntsChatUI"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             RequestedThemeVariant="Light">
 
     <Application.DataTemplates>
         <local:ViewLocator/>
@@ -11,5 +10,59 @@
   
     <Application.Styles>
         <FluentTheme />
+        
+        <!-- Global light theme overrides -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+            <Setter Property="BorderBrush" Value="#dadce0"/>
+            <Setter Property="SelectionBrush" Value="#4285f4"/>
+            <Setter Property="SelectionForegroundBrush" Value="White"/>
+        </Style>
+        
+        <Style Selector="TextBox:focus">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+            <Setter Property="BorderBrush" Value="#4285f4"/>
+            <Setter Property="SelectionBrush" Value="#4285f4"/>
+            <Setter Property="SelectionForegroundBrush" Value="White"/>
+        </Style>
+        
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+            <Setter Property="BorderBrush" Value="#dadce0"/>
+        </Style>
+        
+        <Style Selector="ComboBox:focus">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+            <Setter Property="BorderBrush" Value="#4285f4"/>
+        </Style>
+        
+        <Style Selector="ComboBoxItem">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
+        
+        <Style Selector="ComboBoxItem:pointerover">
+            <Setter Property="Background" Value="#f8f9fa"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
+        
+        <Style Selector="ComboBoxItem:selected">
+            <Setter Property="Background" Value="#e8f0fe"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
+        
+        <Style Selector="MenuItem">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
+        
+        <Style Selector="MenuItem:pointerover">
+            <Setter Property="Background" Value="#f8f9fa"/>
+            <Setter Property="Foreground" Value="#202124"/>
+        </Style>
     </Application.Styles>
 </Application>
