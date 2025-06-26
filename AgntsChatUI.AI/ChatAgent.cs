@@ -6,7 +6,8 @@
 
     public class ChatAgent(ChatCompletionAgent innerAgent)
     {
-        public async IAsyncEnumerable<string> InvokeStreamingAsyncInvokeAsync(string input,
+        public async IAsyncEnumerable<string> InvokeStreamingAsyncInvokeAsync(
+            string input,
             ChatHistory history,
             IDictionary<string, string> arguments)
         {
@@ -15,7 +16,7 @@
                 throw new InvalidOperationException("Agent is not initialized.");
             }
 
-            ChatHistoryAgentThread _thread = new ChatHistoryAgentThread(history);
+            ChatHistoryAgentThread thread = new ChatHistoryAgentThread(history);
 
             KernelArguments kernelArgs = new KernelArguments()
             {
@@ -30,16 +31,18 @@
                 }
             }
 
-            IAsyncEnumerable<AgentResponseItem<StreamingChatMessageContent>> result = innerAgent.InvokeStreamingAsync(input, _thread, new AgentInvokeOptions()
-            {
-                KernelArguments = kernelArgs
-            });
+            IAsyncEnumerable<AgentResponseItem<StreamingChatMessageContent>> result = innerAgent.InvokeStreamingAsync(
+                input,
+                thread,
+                new AgentInvokeOptions()
+                {
+                    KernelArguments = kernelArgs
+                });
 
             await foreach (AgentResponseItem<StreamingChatMessageContent> item in result)
             {
-                yield return item.Message.Content ?? throw new InvalidOperationException("Received null content from agent response.");
+                yield return item.Message.Content ?? string.Empty;
             }
-
         }
     }
 }

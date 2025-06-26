@@ -32,6 +32,9 @@
         private bool isLoadingAgents;
 
         [ObservableProperty]
+        private bool isKernelConfigurationOpen;
+
+        [ObservableProperty]
         private ObservableCollection<AgentDefinition> availableAgents = [];
 
         [ObservableProperty]
@@ -41,6 +44,7 @@
         private ChatAgent? currentChatAgent;
 
         public ObservableCollection<MessageResult> Messages { get; } = [];
+        public ObservableCollection<KernelArgument> KernelArguments { get; } = [];
 
         public event Action? ScrollToBottomRequested;
 
@@ -191,8 +195,9 @@
                 this.Messages.Add(botMessage);
 
                 StringBuilder responseBuilder = new StringBuilder();
+                Dictionary<string, string> kernelArgs = this.GetKernelArgumentsDictionary();
 
-                await foreach (string chunk in this.CurrentChatAgent.InvokeStreamingAsyncInvokeAsync(messageWithContext, this._chatHistory))
+                await foreach (string chunk in this.CurrentChatAgent.InvokeStreamingAsyncInvokeAsync(messageWithContext, this._chatHistory, kernelArgs))
                 {
                     responseBuilder.Append(chunk);
                     botMessage.Content = responseBuilder.ToString();
@@ -221,6 +226,90 @@
                 ScrollToBottomRequested?.Invoke();
             }
         }
+
+        private Dictionary<string, string> GetKernelArgumentsDictionary()
+        {
+            return this.KernelArguments
+                .Where(arg => !string.IsNullOrWhiteSpace(arg.Key))
+                .ToDictionary(arg => arg.Key, arg => arg.Value ?? string.Empty);
+        }
+
+        #region Kernel Configuration Commands
+
+        [RelayCommand]
+        private void OpenKernelConfiguration()
+        {
+            this.IsKernelConfigurationOpen = true;
+        }
+
+        [RelayCommand]
+        private void CloseKernelConfiguration()
+        {
+            this.IsKernelConfigurationOpen = false;
+        }
+
+        [RelayCommand]
+        private void ApplyKernelConfiguration()
+        {
+            this.IsKernelConfigurationOpen = false;
+
+            MessageResult configMessage = new MessageResult(
+                "🤖",
+                $"Kernel configuration applied with {this.KernelArguments.Count} arguments.",
+                DateTime.Now,
+                false
+            );
+            this.Messages.Add(configMessage);
+            ScrollToBottomRequested?.Invoke();
+        }
+
+        [RelayCommand]
+        private void AddKernelArgument()
+        {
+            this.KernelArguments.Add(new KernelArgument());
+        }
+
+        [RelayCommand]
+        private void RemoveKernelArgument(KernelArgument argument)
+        {
+            this.KernelArguments.Remove(argument);
+        }
+
+        [RelayCommand]
+        private void ResetKernelArguments()
+        {
+            this.KernelArguments.Clear();
+        }
+
+        [RelayCommand]
+        private void LoadTemplate(string templateType)
+        {
+            this.KernelArguments.Clear();
+
+            switch (templateType.ToLowerInvariant())
+            {
+                case "persona":
+                    this.KernelArguments.Add(new KernelArgument("firstName", "", "User's first name for personalization"));
+                    this.KernelArguments.Add(new KernelArgument("role", "", "User's professional role or title"));
+                    this.KernelArguments.Add(new KernelArgument("expertise", "", "User's area of expertise"));
+                    break;
+
+                case "context":
+                    this.KernelArguments.Add(new KernelArgument("context", "", "Additional context for the conversation"));
+                    this.KernelArguments.Add(new KernelArgument("domain", "", "Specific domain or industry context"));
+                    this.KernelArguments.Add(new KernelArgument("objective", "", "Primary objective or goal"));
+                    break;
+
+                case "analysis":
+                    this.KernelArguments.Add(new KernelArgument("analysisType", "", "Type of analysis to perform"));
+                    this.KernelArguments.Add(new KernelArgument("focusArea", "", "Specific area to focus analysis on"));
+                    this.KernelArguments.Add(new KernelArgument("outputFormat", "", "Desired format for analysis output"));
+                    this.KernelArguments.Add(new KernelArgument("depth", "", "Level of analysis depth required"));
+                    break;
+            }
+        }
+
+        #endregion
 
         private async Task<string> BuildMessageWithDocumentContext(string userMessage)
         {

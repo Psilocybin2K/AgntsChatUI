@@ -4,6 +4,29 @@
 
     using CommunityToolkit.Mvvm.ComponentModel;
 
+    public partial class KernelArgument : ObservableObject
+    {
+        [ObservableProperty]
+        private string key = string.Empty;
+
+        [ObservableProperty]
+        private string value = string.Empty;
+
+        [ObservableProperty]
+        private string description = string.Empty;
+
+        public KernelArgument()
+        {
+        }
+
+        public KernelArgument(string key, string value, string description = "")
+        {
+            this.Key = key;
+            this.Value = value;
+            this.Description = description;
+        }
+    }
+
     public partial class ContextDocument : ObservableObject
     {
         public string Id { get; }
