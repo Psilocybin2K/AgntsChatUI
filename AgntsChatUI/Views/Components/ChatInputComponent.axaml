@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AgntsChatUI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="100"
+             x:Class="AgntsChatUI.Views.Components.ChatInputComponent"
+             x:DataType="vm:ChatViewModel">
+
+	<Design.DataContext>
+		<vm:ChatViewModel/>
+	</Design.DataContext>
+
+	<!-- Input Area -->
+	<Border Padding="16,24" BorderBrush="#e8eaed" BorderThickness="0,1,0,0" Background="White">
+		<StackPanel Spacing="12">
+			<!-- Input Controls -->
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+
+				<TextBox Grid.Column="2"
+                         Text="{Binding MessageText}"
+                         Watermark="Ask about your documents..."
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MaxHeight="120"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         Background="White"
+                         Foreground="#202124"
+                         BorderBrush="#dadce0"
+                         BorderThickness="1"
+                         CornerRadius="24"
+                         Padding="12,16"
+                         Margin="0,0,12,0"
+                         Name="MessageTextBox">
+					<TextBox.KeyBindings>
+						<KeyBinding Gesture="Enter" Command="{Binding SendMessageCommand}"/>
+					</TextBox.KeyBindings>
+				</TextBox>
+
+				<Button Grid.Column="3"
+                        Classes="SendButton"
+                        Command="{Binding SendMessageCommand}">
+					<Path Data="M2,21L23,12L2,3V10L17,12L2,14V21Z" Fill="White" Stretch="Uniform" Width="20" Height="20"/>
+				</Button>
+			</Grid>
+		</StackPanel>
+	</Border>
+</UserControl>

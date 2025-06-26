@@ -2,9 +2,9 @@
 {
     public class AgentDefinition
     {
-        public string Description { get; set; }
-        public string InstructionsPath { get; set; }
-        public string Name { get; set; }
-        public string PromptyPath { get; set; }
+        public required string Description { get; set; }
+        public required string InstructionsPath { get; set; }
+        public required string Name { get; set; }
+        public required string PromptyPath { get; set; }
     }
 }

@@ -20,7 +20,6 @@
     {
         private readonly DocumentManagementViewModel _documentManagementViewModel;
         private readonly ChatHistory _chatHistory;
-        private readonly ChatAgentFactory _agentFactory;
 
         [ObservableProperty]
         private string messageText = string.Empty;
@@ -56,7 +55,6 @@
         {
             this._documentManagementViewModel = documentManagementViewModel ?? new DocumentManagementViewModel();
             this._chatHistory = new ChatHistory();
-            this._agentFactory = new ChatAgentFactory();
 
             this.InitializeAsync();
         }
@@ -90,7 +88,7 @@
                 if (this.AvailableAgents.Any())
                 {
                     this.SelectedAgent = this.AvailableAgents.First();
-                    await this.UpdateCurrentAgentAsync();
+                    this.UpdateCurrentAgent();
                 }
             }
             catch (Exception ex)
@@ -98,7 +96,9 @@
                 AgentDefinition errorAgent = new AgentDefinition
                 {
                     Name = "Error Loading Agents",
-                    Description = ex.Message
+                    Description = ex.Message,
+                    InstructionsPath = string.Empty,
+                    PromptyPath = string.Empty
                 };
                 this.AvailableAgents = new ObservableCollection<AgentDefinition> { errorAgent };
             }
@@ -112,11 +112,11 @@
         {
             if (value != null)
             {
-                _ = UpdateCurrentAgentAsync();
+                UpdateCurrentAgent();
             }
         }
 
-        private async Task UpdateCurrentAgentAsync()
+        private void UpdateCurrentAgent()
         {
             if (this.SelectedAgent == null)
             {

@@ -1,0 +1,211 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AgntsChatUI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="AgntsChatUI.Views.Components.KernelConfigurationDialogComponent"
+             x:DataType="vm:ChatViewModel">
+
+	<Design.DataContext>
+		<vm:ChatViewModel/>
+	</Design.DataContext>
+
+	<!-- Kernel Configuration Dialog Overlay -->
+	<Border IsVisible="{Binding IsKernelConfigurationOpen}"
+            Background="#80000000"
+            ZIndex="100">
+		<Border Background="White"
+                CornerRadius="8"
+                Width="600"
+                MaxHeight="600"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                BoxShadow="0 4 20 0 #40000000"
+                Margin="40">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+
+				<!-- Header -->
+				<Border Grid.Row="0" Padding="24,20" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+							<Border Width="32" Height="32" CornerRadius="16" Background="#4285f4">
+								<Path Data="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"
+                                      Fill="White" Stretch="Uniform" Width="16" Height="16"/>
+							</Border>
+							<StackPanel>
+								<TextBlock Text="Kernel Configuration" FontSize="18" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="Configure kernel arguments for AI processing" FontSize="13" Foreground="#5f6368"/>
+							</StackPanel>
+						</StackPanel>
+						<Button Grid.Column="1"
+                                Classes="IconButton"
+                                Command="{Binding CloseKernelConfigurationCommand}">
+							<Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                                  Fill="#5f6368"
+                                  Stretch="Uniform"
+                                  Width="14" Height="14"/>
+						</Button>
+					</Grid>
+				</Border>
+
+				<!-- Content -->
+				<ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+					<StackPanel Spacing="20" Margin="24">
+						<!-- Existing Arguments Section -->
+						<StackPanel Spacing="12">
+							<TextBlock Text="Kernel Arguments" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+							<TextBlock Text="Configure key-value pairs that will be passed to the kernel during processing."
+                                       FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
+
+							<!-- Arguments List -->
+							<ItemsControl ItemsSource="{Binding KernelArguments}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,8">
+											<Grid>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="*"/>
+													<ColumnDefinition Width="*"/>
+													<ColumnDefinition Width="Auto"/>
+												</Grid.ColumnDefinitions>
+												<Grid.RowDefinitions>
+													<RowDefinition Height="Auto"/>
+													<RowDefinition Height="Auto"/>
+												</Grid.RowDefinitions>
+
+												<TextBox Grid.Column="0" Grid.Row="0"
+                                                         Text="{Binding Key}"
+                                                         Watermark="Argument Key"
+                                                         Margin="0,0,8,0"
+                                                         Background="White"
+                                                         BorderBrush="#dadce0"
+                                                         BorderThickness="1"
+                                                         CornerRadius="4"
+                                                         Padding="8"/>
+
+												<TextBox Grid.Column="1" Grid.Row="0"
+                                                         Text="{Binding Value}"
+                                                         Watermark="Argument Value"
+                                                         Margin="8,0,8,0"
+                                                         Background="White"
+                                                         BorderBrush="#dadce0"
+                                                         BorderThickness="1"
+                                                         CornerRadius="4"
+                                                         Padding="8"/>
+
+												<Button Grid.Column="2" Grid.Row="0"
+                                                        Classes="IconButton"
+                                                        ToolTip.Tip="Remove Argument"
+                                                        Command="{Binding $parent[UserControl].((vm:ChatViewModel)DataContext).RemoveKernelArgumentCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        VerticalAlignment="Center">
+													<Path Data="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                                                          Fill="#ea4335"
+                                                          Stretch="Uniform"
+                                                          Width="16" Height="16"/>
+												</Button>
+
+												<TextBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+                                                         Text="{Binding Description}"
+                                                         Watermark="Optional: Description for this argument"
+                                                         Margin="0,8,8,0"
+                                                         Background="White"
+                                                         BorderBrush="#dadce0"
+                                                         BorderThickness="1"
+                                                         CornerRadius="4"
+                                                         Padding="8"
+                                                         FontSize="12"/>
+											</Grid>
+										</Border>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+
+							<!-- Add New Argument Button -->
+							<Button Classes="SecondaryButton"
+                                    Command="{Binding AddKernelArgumentCommand}"
+                                    HorizontalAlignment="Left">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Path Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                                          Fill="#5f6368"
+                                          Stretch="Uniform"
+                                          Width="16" Height="16"/>
+									<TextBlock Text="Add Argument" FontSize="14"/>
+								</StackPanel>
+							</Button>
+						</StackPanel>
+
+						<!-- Preset Templates Section -->
+						<StackPanel Spacing="12">
+							<TextBlock Text="Quick Templates" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+							<TextBlock Text="Load common argument configurations quickly."
+                                       FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
+
+							<StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
+								<Button Classes="SecondaryButton"
+                                        Command="{Binding LoadTemplateCommand}"
+                                        CommandParameter="persona">
+									<TextBlock Text="Persona Template" FontSize="12"/>
+								</Button>
+								<Button Classes="SecondaryButton"
+                                        Command="{Binding LoadTemplateCommand}"
+                                        CommandParameter="context">
+									<TextBlock Text="Context Template" FontSize="12"/>
+								</Button>
+								<Button Classes="SecondaryButton"
+                                        Command="{Binding LoadTemplateCommand}"
+                                        CommandParameter="analysis">
+									<TextBlock Text="Analysis Template" FontSize="12"/>
+								</Button>
+							</StackPanel>
+						</StackPanel>
+
+						<!-- Current Arguments Count -->
+						<Border Background="#e8f0fe" BorderBrush="#4285f4" BorderThickness="1" CornerRadius="8" Padding="16">
+							<StackPanel Spacing="8">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Path Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"
+                                          Fill="#4285f4"
+                                          Stretch="Uniform"
+                                          Width="16" Height="16"/>
+									<TextBlock Text="Configuration Summary" FontWeight="Medium" Foreground="#4285f4"/>
+								</StackPanel>
+								<TextBlock Text="{Binding KernelArguments.Count, StringFormat='Currently configured: {0} kernel arguments'}"
+                                           FontSize="14" Foreground="#202124"/>
+								<TextBlock Text="These arguments will be passed to the AI agent with each message."
+                                           FontSize="12" Foreground="#5f6368"/>
+							</StackPanel>
+						</Border>
+					</StackPanel>
+				</ScrollViewer>
+
+				<!-- Footer Actions -->
+				<Border Grid.Row="2" Padding="24,16" BorderBrush="#e8eaed" BorderThickness="0,1,0,0">
+					<StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+						<Button Classes="SecondaryButton"
+                                Content="Reset All"
+                                Command="{Binding ResetKernelArgumentsCommand}"/>
+						<Button Classes="SecondaryButton"
+                                Content="Cancel"
+                                Command="{Binding CloseKernelConfigurationCommand}"/>
+						<Button Classes="PrimaryButton"
+                                Content="Apply Configuration"
+                                Command="{Binding ApplyKernelConfigurationCommand}"/>
+					</StackPanel>
+				</Border>
+			</Grid>
+		</Border>
+	</Border>
+</UserControl>

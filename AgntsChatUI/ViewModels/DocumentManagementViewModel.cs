@@ -56,13 +56,13 @@
             {
                 Title = "Select Document",
                 AllowMultiple = false,
-                FileTypeFilter = new[]
-                {
+                FileTypeFilter =
+                [
                     FilePickerFileTypes.All,
-                    new FilePickerFileType("Documents") { Patterns = new[] { "*.pdf", "*.doc", "*.docx", "*.txt" } },
-                    new FilePickerFileType("Images") { Patterns = new[] { "*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp" } },
-                    new FilePickerFileType("Spreadsheets") { Patterns = new[] { "*.xls", "*.xlsx" } }
-                }
+                    new FilePickerFileType("Documents") { Patterns = ["*.pdf", "*.doc", "*.docx", "*.txt"] },
+                    new FilePickerFileType("Images") { Patterns = ["*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp"] },
+                    new FilePickerFileType("Spreadsheets") { Patterns = ["*.xls", "*.xlsx"] }
+                ]
             });
 
             if (files.Count > 0)
@@ -110,7 +110,7 @@
         }
 
         [RelayCommand]
-        private void EditDocumentTitle(ContextDocument document)
+        private static void EditDocumentTitle(ContextDocument document)
         {
             document.IsEditingTitle = true;
         }
@@ -122,6 +122,7 @@
             {
                 await this._documentService.UpdateDocumentTitleAsync(document.Id, document.Title);
             }
+
             document.IsEditingTitle = false;
         }
 
@@ -137,6 +138,7 @@
                 {
                     document.Title = originalDoc.Title;
                 }
+
                 document.IsEditingTitle = false;
             });
         }

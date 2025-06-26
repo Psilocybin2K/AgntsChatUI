@@ -23,8 +23,15 @@
         private readonly string _documentsPath;
         private readonly string _metadataFile;
 
+        private readonly JsonSerializerOptions _cachedJsonSerializerOptions;
+
+
         public DocumentService()
         {
+            this._cachedJsonSerializerOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
             this._documentsPath = Path.Combine(Environment.CurrentDirectory, "Documents");
             this._metadataFile = Path.Combine(this._documentsPath, "metadata.json");
             this.EnsureDirectoryExists();
@@ -173,7 +180,7 @@
         {
             try
             {
-                string json = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
+                string json = JsonSerializer.Serialize(metadata, this._cachedJsonSerializerOptions);
                 await File.WriteAllTextAsync(this._metadataFile, json);
             }
             catch
@@ -184,7 +191,7 @@
 
         private static string FormatFileSize(long bytes)
         {
-            string[] sizes = { "B", "KB", "MB", "GB" };
+            string[] sizes = ["B", "KB", "MB", "GB"];
             double len = bytes;
             int order = 0;
             while (len >= 1024 && order < sizes.Length - 1)
@@ -192,6 +199,7 @@
                 order++;
                 len /= 1024;
             }
+
             return $"{len:0.##} {sizes[order]}";
         }
     }
