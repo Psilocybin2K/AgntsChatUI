@@ -7,7 +7,8 @@
     public class ChatAgent(ChatCompletionAgent innerAgent)
     {
         public async IAsyncEnumerable<string> InvokeStreamingAsyncInvokeAsync(string input,
-            ChatHistory history)
+            ChatHistory history,
+            IDictionary<string, string> arguments)
         {
             if (innerAgent == null)
             {
@@ -16,17 +17,27 @@
 
             ChatHistoryAgentThread _thread = new ChatHistoryAgentThread(history);
 
+            KernelArguments kernelArgs = new KernelArguments()
+            {
+                ["message"] = input
+            };
+
+            if (arguments != null)
+            {
+                foreach (KeyValuePair<string, string> arg in arguments)
+                {
+                    kernelArgs[arg.Key] = arg.Value;
+                }
+            }
+
             IAsyncEnumerable<AgentResponseItem<StreamingChatMessageContent>> result = innerAgent.InvokeStreamingAsync(input, _thread, new AgentInvokeOptions()
             {
-                KernelArguments = new KernelArguments()
-                {
-                    ["message"] = input
-                }
+                KernelArguments = kernelArgs
             });
 
             await foreach (AgentResponseItem<StreamingChatMessageContent> item in result)
             {
-                yield return item.Message.Content;
+                yield return item.Message.Content ?? throw new InvalidOperationException("Received null content from agent response.");
             }
 
         }

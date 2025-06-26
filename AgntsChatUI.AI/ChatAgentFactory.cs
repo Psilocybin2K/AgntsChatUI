@@ -16,33 +16,45 @@
             this._agents = [.. LoadAgentsFromConfig()];
         }
 
-        public static ChatAgent CreateAgent(string name,
-            string description,
-            string instructionsPath,
-            string promptyPath)
+        private static ChatAgent CreateAgentFromDefinition(AgentDefinition definition)
         {
-            PromptTemplateConfig templateConfig =
-                KernelFunctionPrompty.ToPromptTemplateConfig(File.ReadAllText(promptyPath));
+            PromptTemplateConfig templateConfig = KernelFunctionPrompty.ToPromptTemplateConfig(
+                File.ReadAllText(definition.PromptyPath));
 
-            string instructions = File.ReadAllText(instructionsPath);
-            string endpoint = Environment.GetEnvironmentVariable("AOAI_ENDPOINT") ??
-                              throw new InvalidOperationException("AOAI_ENDPOINT environment variable is not set.");
-            string apiKey = Environment.GetEnvironmentVariable("AOAI_API_KEY") ??
-                            throw new InvalidOperationException("AOAI_API_KEY environment variable is not set.");
+            string instructions = File.ReadAllText(definition.InstructionsPath);
+            string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
+            string apiKey = GetRequiredEnvironmentVariable("AOAI_API_KEY");
 
             ChatCompletionAgent agent = new ChatCompletionAgent(templateConfig, new LiquidPromptTemplateFactory())
             {
-                Name = name,
+                Name = definition.Name,
                 Instructions = instructions,
-                Description = description,
+                Description = definition.Description,
                 Kernel = Kernel.CreateBuilder()
                     .AddAzureOpenAIChatCompletion("gpt-4.1-nano", endpoint, apiKey)
                     .Build()
             };
 
-            ChatAgent chatAgent = new ChatAgent(agent);
+            return new ChatAgent(agent);
+        }
 
-            return chatAgent;
+        private static string GetRequiredEnvironmentVariable(string key)
+        {
+            return Environment.GetEnvironmentVariable(key)
+                ?? throw new InvalidOperationException($"{key} environment variable is not set.");
+        }
+
+        public static ChatAgent CreateAgent(string name, string description, string instructionsPath, string promptyPath)
+        {
+            AgentDefinition definition = new AgentDefinition
+            {
+                Name = name,
+                Description = description,
+                InstructionsPath = instructionsPath,
+                PromptyPath = promptyPath
+            };
+
+            return CreateAgentFromDefinition(definition);
         }
 
         public static IEnumerable<ChatAgent> LoadAgentsFromConfig()
@@ -50,10 +62,7 @@
             string config = File.ReadAllText("agents.config.json");
             AgentDefinition[]? agentDefinitions = JsonSerializer.Deserialize<AgentDefinition[]>(config);
 
-            IEnumerable<ChatAgent> agents = agentDefinitions.Select(a =>
-                CreateAgent(a.Name, a.Description, a.InstructionsPath, a.PromptyPath));
-
-            return agents;
+            return agentDefinitions?.Select(CreateAgentFromDefinition) ?? Enumerable.Empty<ChatAgent>();
         }
 
         public void AddAgent(ChatAgent agent)

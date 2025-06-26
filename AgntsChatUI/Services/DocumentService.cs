@@ -58,7 +58,7 @@
                     FormatFileSize(fileInfo.Length),
                     fileInfo.CreationTime,
                     file,
-                    GetFileType(fileInfo.Extension),
+                    DocumentTypeHelper.GetFileType(fileInfo.Extension),
                     customTitle
                 );
                 documents.Add(document);
@@ -104,7 +104,7 @@
                 FormatFileSize(fileInfo.Length),
                 fileInfo.CreationTime,
                 destinationPath,
-                GetFileType(fileInfo.Extension),
+                DocumentTypeHelper.GetFileType(fileInfo.Extension),
                 customTitle
             );
         }
@@ -193,20 +193,6 @@
                 len /= 1024;
             }
             return $"{len:0.##} {sizes[order]}";
-        }
-
-        private static UploadedDocumentType GetFileType(string extension)
-        {
-            return extension.ToLowerInvariant() switch
-            {
-                ".pdf" => UploadedDocumentType.Pdf,
-                ".doc" or ".docx" => UploadedDocumentType.Word,
-                ".xls" or ".xlsx" => UploadedDocumentType.Excel,
-                ".ppt" or ".pptx" => UploadedDocumentType.PowerPoint,
-                ".txt" => UploadedDocumentType.Text,
-                ".jpg" or ".jpeg" or ".png" or ".gif" or ".bmp" => UploadedDocumentType.Image,
-                _ => UploadedDocumentType.Other
-            };
         }
     }
 

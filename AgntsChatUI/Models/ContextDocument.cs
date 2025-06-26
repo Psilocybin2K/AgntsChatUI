@@ -34,26 +34,18 @@
             this.IsIncludedInChat = isIncludedInChat;
         }
 
-        public string FileTypeIcon => this.FileType switch
+        private static (string Icon, string Color) GetFileTypeDisplay(UploadedDocumentType fileType) => fileType switch
         {
-            UploadedDocumentType.Pdf => "📄",
-            UploadedDocumentType.Word => "📝",
-            UploadedDocumentType.Excel => "📊",
-            UploadedDocumentType.PowerPoint => "📋",
-            UploadedDocumentType.Text => "📄",
-            UploadedDocumentType.Image => "🖼️",
-            _ => "📁"
+            UploadedDocumentType.Pdf => ("📄", "#ea4335"),
+            UploadedDocumentType.Word => ("📝", "#4285f4"),
+            UploadedDocumentType.Excel => ("📊", "#34a853"),
+            UploadedDocumentType.PowerPoint => ("📋", "#fbbc05"),
+            UploadedDocumentType.Text => ("📄", "#5f6368"),
+            UploadedDocumentType.Image => ("🖼️", "#9c27b0"),
+            _ => ("📁", "#757575")
         };
 
-        public string FileTypeColor => this.FileType switch
-        {
-            UploadedDocumentType.Pdf => "#ea4335",
-            UploadedDocumentType.Word => "#4285f4",
-            UploadedDocumentType.Excel => "#34a853",
-            UploadedDocumentType.PowerPoint => "#fbbc05",
-            UploadedDocumentType.Text => "#5f6368",
-            UploadedDocumentType.Image => "#9c27b0",
-            _ => "#757575"
-        };
+        public string FileTypeIcon => GetFileTypeDisplay(this.FileType).Icon;
+        public string FileTypeColor => GetFileTypeDisplay(this.FileType).Color;
     }
 }
