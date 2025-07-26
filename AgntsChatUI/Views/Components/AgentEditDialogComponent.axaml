@@ -1,0 +1,203 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AgntsChatUI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="AgntsChatUI.Views.Components.AgentEditDialogComponent"
+             x:DataType="vm:AgentManagementViewModel">
+
+	<!-- Design.DataContext removed due to constructor dependencies -->
+
+	<!-- Agent Edit Dialog Overlay -->
+	<Border IsVisible="{Binding IsEditing}"
+            Background="#80000000"
+            ZIndex="100">
+		<Border Background="White"
+                CornerRadius="12"
+                Width="500"
+                MaxHeight="600"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                BoxShadow="0 8 32 0 #40000000"
+                Margin="40">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+
+				<!-- Header -->
+				<Border Grid.Row="0" Padding="24,20" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+							<Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
+								<TextBlock Text="🤖" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+							</Border>
+							<StackPanel>
+								<TextBlock Text="{Binding SelectedAgent.Name, FallbackValue='New Agent'}" FontSize="20" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="Configure agent settings and behavior" FontSize="14" Foreground="#5f6368"/>
+							</StackPanel>
+						</StackPanel>
+						<Button Grid.Column="1"
+                                Classes="IconButton"
+                                Command="{Binding CancelEditCommand}"
+                                Width="32" Height="32">
+							<Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                                  Fill="#5f6368"
+                                  Stretch="Uniform"
+                                  Width="16" Height="16"/>
+						</Button>
+					</Grid>
+				</Border>
+
+				<!-- Content -->
+				<ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="24">
+					<StackPanel Spacing="20">
+						
+						<!-- Agent Name Field -->
+						<StackPanel Spacing="6">
+							<TextBlock Text="Agent Name *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
+							<TextBox Text="{Binding AgentName}"
+                                     FontSize="16"
+                                     Padding="16,12"
+                                     CornerRadius="8"
+                                     BorderBrush="#dadce0"
+                                     Background="White"
+                                     Watermark="Enter agent name..."
+                                     MaxLength="100"/>
+							<TextBlock Text="Required field. Maximum 100 characters." 
+                                       FontSize="12" 
+                                       Foreground="#5f6368" 
+                                       Margin="4,0,0,0"/>
+						</StackPanel>
+
+						<!-- Agent Description Field -->
+						<StackPanel Spacing="6">
+							<TextBlock Text="Description *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
+							<TextBox Text="{Binding AgentDescription}"
+                                     FontSize="16"
+                                     Padding="16,12"
+                                     CornerRadius="8"
+                                     BorderBrush="#dadce0"
+                                     Background="White"
+                                     Watermark="Enter agent description..."
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     MinHeight="120"
+                                     MaxLength="500"/>
+							<TextBlock Text="Required field. Maximum 500 characters." 
+                                       FontSize="12" 
+                                       Foreground="#5f6368" 
+                                       Margin="4,0,0,0"/>
+						</StackPanel>
+
+						<!-- Status Messages -->
+						<Border IsVisible="{Binding HasError}"
+                                Background="#fce8e6"
+                                BorderBrush="#f28b82"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<TextBlock Text="⚠️" FontSize="16" VerticalAlignment="Top"/>
+								<TextBlock Text="{Binding StatusMessage}"
+                                           FontSize="14"
+                                           Foreground="#d93025"
+                                           TextWrapping="Wrap"/>
+							</StackPanel>
+						</Border>
+
+						<!-- Success Messages -->
+						<Border IsVisible="{Binding !HasError}"
+                                Background="#e6f4ea"
+                                BorderBrush="#81c784"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="16">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<TextBlock Text="✅" FontSize="16" VerticalAlignment="Top"/>
+								<TextBlock Text="{Binding StatusMessage}"
+                                           FontSize="14"
+                                           Foreground="#137333"
+                                           TextWrapping="Wrap"/>
+							</StackPanel>
+						</Border>
+
+						<!-- Additional Info -->
+						<Border Background="#f8f9fa" 
+						        BorderBrush="#e8eaed" 
+						        BorderThickness="1" 
+						        CornerRadius="8" 
+						        Padding="16">
+							<StackPanel Spacing="8">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<TextBlock Text="ℹ️" FontSize="16"/>
+									<TextBlock Text="Agent Configuration" FontWeight="Medium" Foreground="#202124"/>
+								</StackPanel>
+								<TextBlock Text="Template files will be automatically generated for this agent:"
+                                           FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
+								<StackPanel Margin="16,4,0,0" Spacing="2">
+									<TextBlock Text="• Instructions file (.md)" FontSize="13" Foreground="#5f6368"/>
+									<TextBlock Text="• Persona template (.prompty)" FontSize="13" Foreground="#5f6368"/>
+								</StackPanel>
+							</StackPanel>
+						</Border>
+					</StackPanel>
+				</ScrollViewer>
+
+				<!-- Footer Actions -->
+				<Border Grid.Row="2" 
+                        Padding="24,16" 
+                        BorderBrush="#e8eaed" 
+                        BorderThickness="0,1,0,0">
+					<StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Right" 
+                                Spacing="12">
+						
+						<!-- Cancel Button -->
+						<Button Command="{Binding CancelEditCommand}"
+                                Classes="SecondaryButton"
+                                Padding="20,12"
+                                CornerRadius="8">
+							<TextBlock Text="Cancel" FontWeight="Medium" FontSize="14"/>
+						</Button>
+
+						<!-- Save Button -->
+						<Button Command="{Binding SaveAgentCommand}"
+                                Classes="PrimaryButton"
+                                Padding="20,12"
+                                CornerRadius="8"
+                                IsEnabled="{Binding CanSaveAgent}">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<TextBlock Text="💾" FontSize="16"/>
+								<TextBlock Text="Save Agent" FontWeight="Medium" FontSize="14"/>
+							</StackPanel>
+						</Button>
+					</StackPanel>
+				</Border>
+
+				<!-- Loading Overlay -->
+				<Border Grid.RowSpan="3" 
+                        Background="#80000000" 
+                        IsVisible="{Binding IsLoading}"
+                        CornerRadius="12">
+					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+						<Border Width="48" Height="48" CornerRadius="24" Background="White">
+							<TextBlock Text="⏳" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Border>
+						<TextBlock Text="Saving agent..." Foreground="White" FontSize="16" FontWeight="Medium"/>
+					</StackPanel>
+				</Border>
+			</Grid>
+		</Border>
+	</Border>
+</UserControl>

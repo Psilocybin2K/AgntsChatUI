@@ -4,48 +4,47 @@
              xmlns:components="using:AgntsChatUI.Views.Components"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="600"
              x:Class="AgntsChatUI.Views.AgentManagementView"
              x:DataType="vm:AgentManagementViewModel">
 
-	<Design.DataContext>
-		<vm:AgentManagementViewModel/>
-	</Design.DataContext>
+	<!-- Design.DataContext removed due to constructor dependencies -->
 
 	<Grid>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="400"/>
-			<ColumnDefinition Width="*"/>
-		</Grid.ColumnDefinitions>
-
-		<!-- Left Panel: Agent List with Floating Add Button overlayed -->
-		<Grid Grid.Column="0">
+		<!-- Main Content: Agent List with Floating Add Button -->
+		<Grid>
 			<components:AgentListComponent DataContext="{Binding}"/>
+			
+			<!-- Floating Add Button -->
 			<Border HorizontalAlignment="Right"
 					VerticalAlignment="Bottom"
-					Margin="20">
+					Margin="24">
 				<Button Command="{Binding AddAgentCommand}"
 						Classes="FloatingButton"
-						Width="56"
-						Height="56"
-						CornerRadius="28"
+						Width="64"
+						Height="64"
+						CornerRadius="32"
 						ToolTip.Tip="Add New Agent">
-					<TextBlock Text="+" FontSize="24" FontWeight="Bold"/>
+					<StackPanel>
+						<TextBlock Text="+" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
+						<TextBlock Text="Add" FontSize="10" FontWeight="Medium" HorizontalAlignment="Center" Margin="0,-4,0,0"/>
+					</StackPanel>
 				</Button>
 			</Border>
 		</Grid>
 
-		<!-- Right Panel: Agent Form -->
-		<components:AgentFormComponent Grid.Column="1" DataContext="{Binding}"/>
+		<!-- Agent Edit Dialog -->
+		<components:AgentEditDialogComponent DataContext="{Binding}"/>
 
-		<!-- Global Loading Overlay -->
-		<Border Grid.ColumnSpan="2"
-				Background="#80000000" 
+		<!-- Global Loading Overlay (for operations like delete) -->
+		<Border Background="#80000000" 
 				IsVisible="{Binding IsLoading}">
-			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-				<TextBlock Text="⏳" FontSize="48" HorizontalAlignment="Center"/>
-				<TextBlock Text="Processing..." Foreground="White" FontSize="16" FontWeight="Medium"/>
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
+				<Border Width="56" Height="56" CornerRadius="28" Background="White">
+					<TextBlock Text="⏳" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				</Border>
+				<TextBlock Text="{Binding StatusMessage}" Foreground="White" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center"/>
 			</StackPanel>
 		</Border>
 	</Grid>
-</UserControl> 
+</UserControl>

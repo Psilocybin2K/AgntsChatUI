@@ -8,9 +8,7 @@
              x:Class="AgntsChatUI.Views.Components.AgentListComponent"
              x:DataType="vm:AgentManagementViewModel">
 
-	<Design.DataContext>
-		<vm:AgentManagementViewModel/>
-	</Design.DataContext>
+	<!-- Design.DataContext removed due to constructor dependencies -->
 
 	<Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="0,0,1,0">
 		<Grid>
@@ -20,36 +18,47 @@
 				<RowDefinition Height="*"/>
 			</Grid.RowDefinitions>
 
-			<!-- Header with Add Button -->
+			<!-- Header -->
 			<Border Grid.Row="0" Padding="20" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
 				<StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-					<Border Width="32" Height="32" CornerRadius="16" Background="#4285f4">
-						<TextBlock Text="🤖" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
+						<TextBlock Text="🤖" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 					</Border>
-					<TextBlock Text="Agents" FontSize="22" FontWeight="Normal" Foreground="#202124" VerticalAlignment="Center"/>
-					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,0,0">
-						<Button Command="{Binding AddAgentCommand}"
-								Classes="FloatingButton"
-								Width="40"
-								Height="40"
-								CornerRadius="20"
-								ToolTip.Tip="Add New Agent">
-							<TextBlock Text="+" FontSize="20" FontWeight="Bold"/>
-						</Button>
+					<StackPanel>
+						<TextBlock Text="Agent Management" FontSize="24" FontWeight="Medium" Foreground="#202124"/>
+						<TextBlock Text="Create and manage AI agents" FontSize="14" Foreground="#5f6368"/>
 					</StackPanel>
 				</StackPanel>
 			</Border>
 
-			<!-- Agent Count -->
-			<Border Grid.Row="1" Padding="16" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
-				<TextBlock Text="{Binding Agents.Count, StringFormat='AGENTS ({0})'}" FontSize="12" FontWeight="Medium" Foreground="#5f6368"/>
+			<!-- Agent Count and Status -->
+			<Border Grid.Row="1" Padding="20,16" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
+				<StackPanel Spacing="8">
+					<TextBlock Text="{Binding Agents.Count, StringFormat='AGENTS ({0})'}" FontSize="12" FontWeight="Medium" Foreground="#5f6368"/>
+					<TextBlock Text="{Binding StatusMessage}" FontSize="13" Foreground="#5f6368"/>
+				</StackPanel>
 			</Border>
 
-			<!-- Agent List (ListBox) -->
-			<ListBox Grid.Row="2" ItemsSource="{Binding Agents}" SelectedItem="{Binding SelectedAgent, Mode=TwoWay}">
+			<!-- Agent List -->
+			<ListBox Grid.Row="2" 
+			         ItemsSource="{Binding Agents}" 
+			         SelectedItem="{Binding SelectedAgent, Mode=TwoWay}"
+			         Padding="8"
+			         Background="Transparent">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<Border Padding="12,16" Margin="0,0,0,4" CornerRadius="8" Background="Transparent">
+						<Border Padding="16,20" 
+						        Margin="0,0,0,8" 
+						        CornerRadius="12" 
+						        Background="White"
+						        BorderBrush="#e8eaed"
+						        BorderThickness="1">
+							<Border.Styles>
+								<Style Selector="Border:pointerover">
+									<Setter Property="Background" Value="#f8f9fa"/>
+									<Setter Property="BorderBrush" Value="#4285f4"/>
+								</Style>
+							</Border.Styles>
 							<Grid>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*"/>
@@ -58,21 +67,53 @@
 								</Grid.ColumnDefinitions>
 								
 								<!-- Agent Info (Clickable for selection) -->
-								<Button Grid.Column="0" Classes="TransparentButton" Command="{Binding $parent[UserControl].DataContext.SelectAgentCommand}" CommandParameter="{Binding}">
-									<StackPanel>
-										<TextBlock Text="{Binding Name}" FontWeight="Medium" Foreground="#202124" Margin="0,0,0,4" TextTrimming="CharacterEllipsis"/>
-										<TextBlock Text="{Binding Description}" FontSize="12" Foreground="#5f6368" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis"/>
+								<Button Grid.Column="0" 
+								        Classes="TransparentButton" 
+								        Command="{Binding $parent[UserControl].DataContext.SelectAgentCommand}" 
+								        CommandParameter="{Binding}"
+								        Padding="0"
+								        HorizontalContentAlignment="Left">
+									<StackPanel Spacing="8">
+										<TextBlock Text="{Binding Name}" 
+										           FontWeight="Medium" 
+										           FontSize="16"
+										           Foreground="#202124"/>
+										<TextBlock Text="{Binding Description}" 
+										           FontSize="14" 
+										           Foreground="#5f6368" 
+										           TextWrapping="Wrap" 
+										           MaxLines="3" 
+										           TextTrimming="CharacterEllipsis"/>
+										<StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+											<TextBlock Text="📄 Instructions • 🎭 Persona" FontSize="12" Foreground="#5f6368"/>
+										</StackPanel>
 									</StackPanel>
 								</Button>
 								
 								<!-- Edit Button -->
-								<Button Grid.Column="1" Classes="IconButton" Command="{Binding $parent[UserControl].DataContext.EditAgentCommand}" CommandParameter="{Binding}" IsEnabled="{Binding $parent[UserControl].DataContext.CanEditAgent}" Margin="8,0,4,0" ToolTip.Tip="Edit Agent">
-									<TextBlock Text="✏️" FontSize="14"/>
+								<Button Grid.Column="1" 
+								        Classes="IconButton" 
+								        Command="{Binding $parent[UserControl].DataContext.EditAgentCommand}" 
+								        CommandParameter="{Binding}" 
+								        ToolTip.Tip="Edit Agent"
+								        Width="40" Height="40"
+								        Margin="8,0">
+									<Border Width="20" Height="20" CornerRadius="10" Background="#4285f4">
+										<TextBlock Text="✏️" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									</Border>
 								</Button>
 								
 								<!-- Delete Button -->
-								<Button Grid.Column="2" Classes="IconButton" Command="{Binding $parent[UserControl].DataContext.DeleteAgentCommand}" CommandParameter="{Binding}" IsEnabled="{Binding $parent[UserControl].DataContext.CanDeleteAgent}" Margin="4,0,0,0" ToolTip.Tip="Delete Agent">
-									<TextBlock Text="🗑️" FontSize="14"/>
+								<Button Grid.Column="2" 
+								        Classes="IconButton" 
+								        Command="{Binding $parent[UserControl].DataContext.DeleteAgentCommand}" 
+								        CommandParameter="{Binding}" 
+								        ToolTip.Tip="Delete Agent"
+								        Width="40" Height="40"
+								        Margin="4,0,0,0">
+									<Border Width="20" Height="20" CornerRadius="10" Background="#ea4335">
+										<TextBlock Text="🗑️" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									</Border>
 								</Button>
 							</Grid>
 						</Border>
@@ -84,21 +125,40 @@
 			<Border Grid.Row="2" 
 					Background="#80000000" 
 					IsVisible="{Binding IsLoading}">
-				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-					<TextBlock Text="⏳" FontSize="32" HorizontalAlignment="Center"/>
-					<TextBlock Text="Loading agents..." Foreground="White" FontSize="14"/>
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+					<TextBlock Text="⏳" FontSize="48" HorizontalAlignment="Center"/>
+					<TextBlock Text="Loading agents..." Foreground="White" FontSize="16" FontWeight="Medium"/>
 				</StackPanel>
 			</Border>
 
 			<!-- Empty State -->
 			<Border Grid.Row="2" 
-					IsVisible="{Binding Agents.Count, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=0}">
-				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-					<TextBlock Text="🤖" FontSize="48" HorizontalAlignment="Center"/>
-					<TextBlock Text="No agents found" FontSize="16" FontWeight="Medium" Foreground="#5f6368" HorizontalAlignment="Center"/>
-					<TextBlock Text="Create your first agent to get started" FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center"/>
+					IsVisible="{Binding !Agents.Count}">
+				<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16" Margin="40">
+					<Border Width="80" Height="80" CornerRadius="40" Background="#f8f9fa">
+						<TextBlock Text="🤖" FontSize="40" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					</Border>
+					<StackPanel Spacing="8">
+						<TextBlock Text="No agents found" FontSize="20" FontWeight="Medium" Foreground="#202124" HorizontalAlignment="Center"/>
+						<TextBlock Text="Create your first agent to get started with AI assistance" 
+						           FontSize="14" 
+						           Foreground="#5f6368" 
+						           HorizontalAlignment="Center"
+						           TextWrapping="Wrap"
+						           TextAlignment="Center"/>
+					</StackPanel>
+					<Button Classes="PrimaryButton"
+					        Command="{Binding AddAgentCommand}"
+					        Padding="24,12"
+					        CornerRadius="8"
+					        Margin="0,8,0,0">
+						<StackPanel Orientation="Horizontal" Spacing="8">
+							<TextBlock Text="+" FontSize="16" FontWeight="Bold"/>
+							<TextBlock Text="Create Your First Agent" FontSize="14" FontWeight="Medium"/>
+						</StackPanel>
+					</Button>
 				</StackPanel>
 			</Border>
 		</Grid>
 	</Border>
-</UserControl> 
+</UserControl>

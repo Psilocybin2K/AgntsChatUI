@@ -11,14 +11,15 @@
         Title="Agent Chat Assistant"
         MinWidth="1200" MinHeight="600">
 
-	<Design.DataContext>
-		<vm:MainWindowViewModel/>
-	</Design.DataContext>
+	<!-- Design.DataContext removed due to constructor dependencies -->
 
 	<Grid IsEnabled="True">
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="320"/>
-			<ColumnDefinition Width="400"/>
+			<!-- Agent Management Panel - Reduced width since no inline editing -->
+			<ColumnDefinition Width="350"/>
+			<!-- Document Management Panel - Increased width for better document viewing -->
+			<ColumnDefinition Width="380"/>
+			<!-- Chat Area - Takes remaining space -->
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 

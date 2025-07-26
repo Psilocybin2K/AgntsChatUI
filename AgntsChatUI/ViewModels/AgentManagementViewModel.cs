@@ -114,7 +114,7 @@ namespace AgntsChatUI.ViewModels
         /// <summary>
         /// Starts editing the selected agent
         /// </summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanEditAgent))]
         private void EditAgent(AgentDefinition? agent = null)
         {
             AgentDefinition? agentToEdit = agent ?? this.SelectedAgent;
@@ -136,11 +136,11 @@ namespace AgntsChatUI.ViewModels
         /// <summary>
         /// Deletes the selected agent
         /// </summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanDeleteAgent))]
         private async Task DeleteAgent(AgentDefinition? agent = null)
         {
             AgentDefinition? agentToDelete = agent ?? this.SelectedAgent;
-            if (agentToDelete == null)
+            if (agentToDelete == null || agentToDelete.Id == null)
             {
                 this.StatusMessage = "Please select an agent to delete";
                 this.HasError = true;
@@ -151,14 +151,17 @@ namespace AgntsChatUI.ViewModels
             {
                 this.IsLoading = true;
                 this.HasError = false;
-                this.StatusMessage = $"Deleting agent: {this.SelectedAgent.Name}...";
+                this.StatusMessage = $"Deleting agent: {agentToDelete.Name}...";
 
-                bool success = await this._agentService.DeleteAgentAsync(this.SelectedAgent.Id ?? 0);
+                bool success = await this._agentService.DeleteAgentAsync(agentToDelete.Id.Value);
 
                 if (success)
                 {
-                    this.Agents.Remove(this.SelectedAgent);
-                    this.SelectedAgent = null;
+                    this.Agents.Remove(agentToDelete);
+                    if (this.SelectedAgent?.Id == agentToDelete.Id)
+                    {
+                        this.SelectedAgent = null;
+                    }
                     this.StatusMessage = "Agent deleted successfully";
                     AgentChanged?.Invoke();
                 }
@@ -182,7 +185,7 @@ namespace AgntsChatUI.ViewModels
         /// <summary>
         /// Saves the current agent (creates new or updates existing)
         /// </summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanSaveAgent))]
         private async Task SaveAgent()
         {
             if (string.IsNullOrWhiteSpace(this.AgentName) || string.IsNullOrWhiteSpace(this.AgentDescription))
@@ -311,11 +314,48 @@ namespace AgntsChatUI.ViewModels
         /// <summary>
         /// Determines if the delete command can be executed
         /// </summary>
-        public bool CanDeleteAgent => this.SelectedAgent != null && !this.IsLoading;
+        public bool CanDeleteAgent(AgentDefinition? agent)
+        {
+            AgentDefinition? targetAgent = agent ?? this.SelectedAgent;
+            return targetAgent != null && !this.IsLoading;
+        }
 
         /// <summary>
         /// Determines if the edit command can be executed
         /// </summary>
-        public bool CanEditAgent => this.SelectedAgent != null && !this.IsLoading && !this.IsEditing;
+        public bool CanEditAgent(AgentDefinition? agent)
+        {
+            AgentDefinition? targetAgent = agent ?? this.SelectedAgent;
+            return targetAgent != null && !this.IsLoading && !this.IsEditing;
+        }
+
+        // Fixed: Added property change notifications for dependent properties
+        partial void OnSelectedAgentChanged(AgentDefinition? value)
+        {
+            this.EditAgentCommand.NotifyCanExecuteChanged();
+            this.DeleteAgentCommand.NotifyCanExecuteChanged();
+        }
+
+        partial void OnIsLoadingChanged(bool value)
+        {
+            this.SaveAgentCommand.NotifyCanExecuteChanged();
+            this.EditAgentCommand.NotifyCanExecuteChanged();
+            this.DeleteAgentCommand.NotifyCanExecuteChanged();
+        }
+
+        partial void OnIsEditingChanged(bool value)
+        {
+            this.EditAgentCommand.NotifyCanExecuteChanged();
+        }
+
+        partial void OnAgentNameChanged(string value)
+        {
+            this.SaveAgentCommand.NotifyCanExecuteChanged();
+        }
+
+        partial void OnAgentDescriptionChanged(string value)
+        {
+            this.SaveAgentCommand.NotifyCanExecuteChanged();
+        }
     }
 }
