@@ -1,0 +1,7 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AgntsChatUI.Views.Components.CommandPaletteComponent">
+  <Border Background="#CC222222" CornerRadius="8" Padding="16" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,40,0,0" Width="400" Effect="{DynamicResource ShadowEffect}">
+    <TextBox Name="InputBox" Watermark="Type a command..." FontSize="18" MinWidth="360"/>
+  </Border>
+</UserControl> 

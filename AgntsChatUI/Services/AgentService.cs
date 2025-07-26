@@ -12,15 +12,10 @@ namespace AgntsChatUI.Services
     /// <summary>
     /// Service layer implementation for agent management operations
     /// </summary>
-    public class AgentService : IAgentService
+    public class AgentService(IAgentRepository repository) : IAgentService
     {
-        private readonly IAgentRepository _repository;
+        private readonly IAgentRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         private bool _isInitialized = false;
-
-        public AgentService(IAgentRepository repository)
-        {
-            this._repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        }
 
         public async Task InitializeAsync()
         {
@@ -61,12 +56,12 @@ namespace AgntsChatUI.Services
         public async Task<bool> MigrateFromJsonConfigAsync()
         {
             // Try multiple locations for the config file
-            string[] possiblePaths = new[]
-            {
+            string[] possiblePaths =
+            [
                 "agents.config.json", // Current directory
                 Path.Combine("..", "AgntsChatUI.AI", "agents.config.json"), // Relative to current directory
                 Path.Combine(Directory.GetCurrentDirectory(), "..", "AgntsChatUI.AI", "agents.config.json"), // Absolute path
-            };
+            ];
 
             string? configFileName = null;
             foreach (string? path in possiblePaths)
@@ -98,7 +93,7 @@ namespace AgntsChatUI.Services
                 string configContent = await File.ReadAllTextAsync(configFileName);
                 AgentDefinition[]? jsonAgents = JsonSerializer.Deserialize<AgentDefinition[]>(configContent);
 
-                if (jsonAgents == null || !jsonAgents.Any())
+                if (jsonAgents == null || jsonAgents.Length == 0)
                 {
                     return false;
                 }

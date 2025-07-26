@@ -28,5 +28,11 @@ namespace AgntsChatUI.Services
         /// </summary>
         /// <returns>Task representing the asynchronous operation</returns>
         Task EnsureDirectoriesExistAsync();
+
+        /// <summary>
+        /// Gets the resolved base directory path (for debugging purposes)
+        /// </summary>
+        /// <returns>The absolute path to the PromptTemplates directory</returns>
+        string GetBaseDirectory();
     }
 }

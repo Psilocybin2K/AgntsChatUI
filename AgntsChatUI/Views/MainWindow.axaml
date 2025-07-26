@@ -13,12 +13,12 @@
 
 	<!-- Design.DataContext removed due to constructor dependencies -->
 
-	<Grid IsEnabled="True">
+	<Grid IsEnabled="True" x:Name="MainGrid">
 		<Grid.ColumnDefinitions>
-			<!-- Agent Management Panel - Reduced width since no inline editing -->
-			<ColumnDefinition Width="350"/>
-			<!-- Document Management Panel - Increased width for better document viewing -->
-			<ColumnDefinition Width="380"/>
+			<!-- Agent Management Panel - Dynamic width based on expanded state -->
+			<ColumnDefinition Width="50"/>
+			<!-- Document Management Panel - Dynamic width based on expanded state -->
+			<ColumnDefinition Width="50"/>
 			<!-- Chat Area - Takes remaining space -->
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
@@ -47,7 +47,13 @@
 			<components:ChatInputComponent Grid.Row="2" DataContext="{Binding ChatViewModel}"/>
 		</Grid>
 
+		<!-- Agent Edit Dialog Overlay - Moved from AgentManagementView -->
+		<components:AgentEditDialogComponent Grid.ColumnSpan="3" DataContext="{Binding AgentManagementViewModel}"/>
+
 		<!-- Kernel Configuration Dialog Overlay -->
 		<components:KernelConfigurationDialogComponent Grid.ColumnSpan="3" DataContext="{Binding ChatViewModel}"/>
+
+		<!-- Command Palette Overlay (centered at top of window, overlays all columns) -->
+		<components:CommandPaletteComponent x:Name="CommandPalette" IsVisible="{Binding IsCommandPaletteVisible}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,40,0,0" Width="400" Grid.ColumnSpan="3"/>
 	</Grid>
 </Window>

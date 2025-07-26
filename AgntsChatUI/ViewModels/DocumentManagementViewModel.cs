@@ -27,6 +27,9 @@
         [ObservableProperty]
         private bool isUploadDialogOpen;
 
+        [ObservableProperty]
+        private bool isExpanded = false; // Collapsed by default
+
         public ObservableCollection<ContextDocument> Documents { get; } = [];
 
         public event Action<ContextDocument>? DocumentSelected;
@@ -165,6 +168,12 @@
         {
             this.SelectedDocument = document;
             DocumentSelected?.Invoke(document);
+        }
+
+        [RelayCommand]
+        private void ToggleExpanded()
+        {
+            this.IsExpanded = !this.IsExpanded;
         }
 
         private async Task LoadDocumentsAsync()

@@ -31,11 +31,11 @@
                 .ConfigureServices((context, services) =>
                 {
                     // Configure Azure OpenAI services
-                    string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
-                    string apiKey = GetRequiredEnvironmentVariable("AOAI_API_KEY");
+                    // string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
+                    string apiKey = GetRequiredEnvironmentVariable("OPENAI_API_KEY");
 
-                    services.AddAzureOpenAIChatCompletion("gpt-4.1-nano", endpoint, apiKey);
-                    services.AddSingleton<Kernel>((s) => new Kernel(s));
+                    services.AddOpenAIChatCompletion("gpt-4.1-nano", apiKey);
+                    services.AddSingleton((s) => new Kernel(s));
                     services.AddSingleton<InProcessRuntime>();
                 });
 
@@ -126,11 +126,11 @@
                 File.ReadAllText(definition.PromptyPath));
 
             string instructions = File.ReadAllText(definition.InstructionsPath);
-            string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
-            string apiKey = GetRequiredEnvironmentVariable("AOAI_API_KEY");
+            // string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
+            string apiKey = GetRequiredEnvironmentVariable("OPENAI_API_KEY");
 
             Kernel kernel = Kernel.CreateBuilder()
-                .AddAzureOpenAIChatCompletion("gpt-4.1-nano", endpoint, apiKey)
+                .AddOpenAIChatCompletion("gpt-4.1-nano", apiKey)
                 .Build();
 
             return new ChatCompletionAgent(templateConfig, new LiquidPromptTemplateFactory())

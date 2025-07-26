@@ -12,9 +12,9 @@
 	</Design.DataContext>
 
 	<Border Padding="16,12" Background="White" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
-		<StackPanel Spacing="8">
+		<StackPanel Spacing="12">
 			
-			<!-- Title and Status - Compact -->
+			<!-- Title and Status -->
 			<StackPanel Orientation="Horizontal" Spacing="8">
 				<Border Width="32" Height="32" CornerRadius="16" Background="#4285f4">
 					<TextBlock Text="🤖" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -25,59 +25,73 @@
 				</StackPanel>
 			</StackPanel>
 
-			<!-- Agent Selection Section - Compact -->
-			<StackPanel Spacing="4">
+			<!-- Agent Selection Section -->
+			<StackPanel Spacing="8">
 				<!-- Section Header -->
 				<StackPanel Orientation="Horizontal" Spacing="6">
-					<TextBlock Text="Select Agents:" FontSize="12" FontWeight="Medium" Foreground="#202124"/>
-					<Border Background="#e8f0fe" CornerRadius="8" Padding="4,1">
-						<TextBlock Text="{Binding SelectedAgents.Count}" FontSize="10" FontWeight="Medium" Foreground="#1a73e8"/>
+					<TextBlock Text="Select Agents:" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
+					<Border Background="#e8f0fe" CornerRadius="8" Padding="6,2">
+						<TextBlock Text="{Binding SelectedAgents.Count}" FontSize="11" FontWeight="Medium" Foreground="#1a73e8"/>
 					</Border>
 				</StackPanel>
 
-				<!-- Agent ListBox with Checkboxes - Compact -->
-				<Border Background="#f8f9fa" CornerRadius="6" Padding="8" Height="120">
-					<ListBox ItemsSource="{Binding AvailableAgents}" 
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto">
-						<ListBox.ItemTemplate>
-							<DataTemplate>
-								<Grid Margin="0,0">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="Auto"/>
-									</Grid.ColumnDefinitions>
-									
-									<!-- Agent Name - Compact -->
-									<StackPanel Grid.Column="0" Margin="4,1">
-										<TextBlock Text="{Binding Name}" 
-                                                   FontSize="11" 
-                                                   FontWeight="Medium" 
-                                                   Foreground="#202124"/>
-										<TextBlock Text="{Binding Description}" 
-                                                   FontSize="9" 
-                                                   Foreground="#5f6368" 
-                                                   TextWrapping="Wrap"
-                                                   MaxLines="1"
-                                                   TextTrimming="CharacterEllipsis"/>
-									</StackPanel>
-									
-									<!-- Checkbox -->
-									<CheckBox Grid.Column="1" 
-                                              VerticalAlignment="Center"
-                                              Margin="4,0"
-                                              IsChecked="{Binding IsSelected}"
-                                              Checked="OnAgentCheckBoxChecked"
-                                              Unchecked="OnAgentCheckBoxUnchecked"/>
-								</Grid>
-							</DataTemplate>
-						</ListBox.ItemTemplate>
-					</ListBox>
+				<!-- Agent ListBox with Enhanced Styling -->
+				<Border Background="#f8f9fa" CornerRadius="8" Padding="8" MaxHeight="200">
+					<ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+						<ItemsControl ItemsSource="{Binding AvailableAgents}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Border Padding="12,16" 
+									        Margin="0,0,0,8" 
+									        CornerRadius="12" 
+									        Background="White"
+									        BorderBrush="#e8eaed"
+									        BorderThickness="1">
+										<Border.Styles>
+											<Style Selector="Border:pointerover">
+												<Setter Property="Background" Value="#f8f9fa"/>
+												<Setter Property="BorderBrush" Value="#4285f4"/>
+											</Style>
+										</Border.Styles>
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="Auto"/>
+											</Grid.ColumnDefinitions>
+											
+											<!-- Agent Info -->
+											<StackPanel Grid.Column="0" Spacing="4">
+												<TextBlock Text="{Binding Name}" 
+												           FontWeight="Medium" 
+												           FontSize="14"
+												           Foreground="#202124"/>
+												<TextBlock Text="{Binding Description}" 
+												           FontSize="12" 
+												           Foreground="#5f6368" 
+												           TextWrapping="Wrap" 
+												           MaxLines="2" 
+												           TextTrimming="CharacterEllipsis"/>
+											</StackPanel>
+											
+											<!-- Checkbox -->
+											<CheckBox Grid.Column="1" 
+											          VerticalAlignment="Center"
+											          Margin="8,0,0,0"
+											          IsChecked="{Binding IsSelected}"
+											          Checked="OnAgentCheckBoxChecked"
+											          Unchecked="OnAgentCheckBoxUnchecked"/>
+										</Grid>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</ScrollViewer>
 				</Border>
 
-				<!-- Selected Agents Display - Compact -->
-				<StackPanel Orientation="Horizontal" Spacing="3" Margin="0,2,0,0">
-					<TextBlock Text="Selected:" FontSize="10" Foreground="#5f6368" VerticalAlignment="Center"/>
+				<!-- Selected Agents Display -->
+				<StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0">
+					<TextBlock Text="Selected:" FontSize="12" Foreground="#5f6368" VerticalAlignment="Center"/>
 					<ItemsControl ItemsSource="{Binding SelectedAgents}">
 						<ItemsControl.ItemsPanel>
 							<ItemsPanelTemplate>
@@ -86,17 +100,18 @@
 						</ItemsControl.ItemsPanel>
 						<ItemsControl.ItemTemplate>
 							<DataTemplate>
-								<Border Background="#e8f0fe" CornerRadius="8" Padding="4,1" Margin="1,0">
-									<StackPanel Orientation="Horizontal" Spacing="3">
-										<TextBlock Text="{Binding Name}" FontSize="9" Foreground="#1a73e8"/>
+								<Border Background="#e8f0fe" CornerRadius="12" Padding="8,4" Margin="2,0">
+									<StackPanel Orientation="Horizontal" Spacing="6">
+										<TextBlock Text="{Binding Name}" FontSize="11" Foreground="#1a73e8" FontWeight="Medium"/>
 										<Button Content="×" 
-                                                FontSize="8" 
-                                                FontWeight="Bold"
-                                                Background="Transparent"
-                                                Foreground="#1a73e8"
-                                                BorderThickness="0"
-                                                Padding="1,0"
-                                                Click="OnRemoveAgentClicked"/>
+										        FontSize="12" 
+										        FontWeight="Bold"
+										        Background="Transparent"
+										        Foreground="#1a73e8"
+										        BorderThickness="0"
+										        Padding="2,0"
+										        ToolTip.Tip="Remove"
+										        Click="OnRemoveAgentClicked"/>
 									</StackPanel>
 								</Border>
 							</DataTemplate>
@@ -105,7 +120,7 @@
 				</StackPanel>
 			</StackPanel>
 
-			<!-- Configuration Button - Compact -->
+			<!-- Configuration Button -->
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 				<Button Classes="LargeIconButton"
                         ToolTip.Tip="Kernel Configuration"

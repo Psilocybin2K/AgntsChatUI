@@ -16,6 +16,8 @@
     using CommunityToolkit.Mvvm.Input;
 
     using Microsoft.SemanticKernel.ChatCompletion;
+    using Microsoft.Extensions.Logging;
+    using System.Text.Json;
 
     public partial class ChatViewModel : ViewModelBase
     {
@@ -23,6 +25,7 @@
         private readonly ChatHistory _chatHistory;
         private readonly ChatAgentFactory _chatAgentFactory;
         private readonly IAgentService _agentService;
+        private readonly ILogger<ChatViewModel> _logger;
 
         [ObservableProperty]
         private string messageText = string.Empty;
@@ -59,8 +62,6 @@
         [ObservableProperty]
         private string statusColor = "#ea4335";
 
-
-
         [ObservableProperty]
         private ChatAgent? currentChatAgent;
 
@@ -69,23 +70,21 @@
 
         public event Action? ScrollToBottomRequested;
 
-
-
-        public ChatViewModel() : this(null, null)
+        public ChatViewModel() : this(null, null, null)
         {
         }
 
-        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel) : this(documentManagementViewModel, null)
+        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel) : this(documentManagementViewModel, null, null)
         {
         }
 
-        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel, IAgentService? agentService)
+        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel, IAgentService? agentService, ILogger<ChatViewModel>? logger)
         {
             this._documentManagementViewModel = documentManagementViewModel ?? new DocumentManagementViewModel();
             this._chatHistory = new ChatHistory();
             this._chatAgentFactory = new ChatAgentFactory();
             this._agentService = agentService ?? throw new ArgumentNullException(nameof(agentService), "IAgentService is required for ChatViewModel");
-
+            this._logger = logger ?? new Microsoft.Extensions.Logging.Abstractions.NullLogger<ChatViewModel>();
             this.InitializeAsync();
         }
 
@@ -100,19 +99,53 @@
 
             try
             {
-                // Use the agent service to load agents from the database
-                IEnumerable<AgentDefinition> agentDefinitions = await this._agentService.GetAllAgentsAsync();
-                this.AvailableAgents = new ObservableCollection<AgentDefinition>(agentDefinitions);
+                // Remember currently selected agent IDs/names to preserve selection
+                HashSet<string> previouslySelectedAgentNames = this.SelectedAgents
+                    .Where(a => !string.IsNullOrEmpty(a.Name))
+                    .Select(a => a.Name)
+                    .ToHashSet();
 
-                if (this.AvailableAgents.Any())
+                // Load agents from the database
+                IEnumerable<AgentDefinition> agentDefinitions = await this._agentService.GetAllAgentsAsync();
+                List<AgentDefinition> agentList = agentDefinitions.ToList();
+
+                // Clear current collections
+                this.AvailableAgents.Clear();
+                this.SelectedAgents.Clear();
+
+                if (agentList.Any())
                 {
-                    AgentDefinition firstAgent = this.AvailableAgents.First();
-                    firstAgent.IsSelected = true;
-                    this.SelectedAgents.Add(firstAgent);
-                    System.Diagnostics.Debug.WriteLine($"LoadAgentsAsync: Added first agent '{firstAgent.Name}', SelectedAgents count: {this.SelectedAgents.Count}");
+                    // Add all agents to available agents
+                    foreach (AgentDefinition agent in agentList)
+                    {
+                        // Restore selection state if this agent was previously selected
+                        if (previouslySelectedAgentNames.Contains(agent.Name))
+                        {
+                            agent.IsSelected = true;
+                            this.SelectedAgents.Add(agent);
+                        }
+                        else
+                        {
+                            agent.IsSelected = false;
+                        }
+
+                        this.AvailableAgents.Add(agent);
+                    }
+
+                    // If no agents were previously selected and we have agents available, select the first one
+                    if (!this.SelectedAgents.Any())
+                    {
+                        AgentDefinition firstAgent = this.AvailableAgents.First();
+                        firstAgent.IsSelected = true;
+                        this.SelectedAgents.Add(firstAgent);
+                        System.Diagnostics.Debug.WriteLine($"LoadAgentsAsync: Auto-selected first agent '{firstAgent.Name}' since no previous selection");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"LoadAgentsAsync: Restored {this.SelectedAgents.Count} previously selected agents");
+                    }
+
                     this.UpdateCurrentAgents();
-                    this.UpdateCanSendMessage();
-                    this.UpdateStatus();
                 }
                 else
                 {
@@ -122,21 +155,37 @@
                         Name = "No Agents Available",
                         Description = "No agents have been configured yet. Please add agents to get started.",
                         InstructionsPath = string.Empty,
-                        PromptyPath = string.Empty
+                        PromptyPath = string.Empty,
+                        IsSelected = false
                     };
-                    this.AvailableAgents = new ObservableCollection<AgentDefinition> { noAgentsAgent };
+                    this.AvailableAgents.Add(noAgentsAgent);
                 }
+
+                this.UpdateCanSendMessage();
+                this.UpdateStatus();
+
+                System.Diagnostics.Debug.WriteLine($"LoadAgentsAsync completed: {this.AvailableAgents.Count} available, {this.SelectedAgents.Count} selected");
             }
             catch (Exception ex)
             {
+                // Clear everything on error
+                this.AvailableAgents.Clear();
+                this.SelectedAgents.Clear();
+
                 AgentDefinition errorAgent = new AgentDefinition
                 {
                     Name = "Error Loading Agents",
                     Description = ex.Message,
                     InstructionsPath = string.Empty,
-                    PromptyPath = string.Empty
+                    PromptyPath = string.Empty,
+                    IsSelected = false
                 };
-                this.AvailableAgents = new ObservableCollection<AgentDefinition> { errorAgent };
+                this.AvailableAgents.Add(errorAgent);
+
+                this.UpdateCanSendMessage();
+                this.UpdateStatus();
+
+                System.Diagnostics.Debug.WriteLine($"LoadAgentsAsync error: {ex.Message}");
             }
             finally
             {
@@ -249,6 +298,15 @@
                 return;
             }
 
+            // Structured JSON log for chat request to Aspire
+            var chatRequest = new ChatRequestLog(
+                this.MessageText,
+                [.. this.SelectedAgents.Select(a => a.Name)],
+                DateTime.UtcNow
+            );
+            
+            this._logger.LogInformation("ChatRequest {@ChatRequest}", JsonSerializer.Serialize(chatRequest, new JsonSerializerOptions { WriteIndented = true }));
+
             string originalMessage = this.MessageText;
             string messageWithContext = await this.BuildMessageWithDocumentContext(originalMessage);
 
@@ -304,6 +362,13 @@
                             ScrollToBottomRequested?.Invoke();
                         }
                     }
+
+                    var chatResponse = new ChatResponseLog(
+                        botMessage.Content,
+                        this.SelectedAgents.First().Name,
+                        DateTime.UtcNow
+                    );
+                    this._logger.LogInformation("ChatResponse {@ChatResponse}", JsonSerializer.Serialize(chatResponse, new JsonSerializerOptions { WriteIndented = true }));
                 }
                 catch (Exception)
                 {

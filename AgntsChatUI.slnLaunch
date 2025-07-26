@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Default",
+    "Projects": [
+      {
+        "Path": "AgntsChatUI\\AgntsChatUI.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "AgntsChatUI.AppHost\\AgntsChatUI.AppHost.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

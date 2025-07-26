@@ -3,11 +3,9 @@
              xmlns:vm="using:AgntsChatUI.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="800"
              x:Class="AgntsChatUI.Views.Components.AgentEditDialogComponent"
              x:DataType="vm:AgentManagementViewModel">
-
-	<!-- Design.DataContext removed due to constructor dependencies -->
 
 	<!-- Agent Edit Dialog Overlay -->
 	<Border IsVisible="{Binding IsEditing}"
@@ -15,8 +13,8 @@
             ZIndex="100">
 		<Border Background="White"
                 CornerRadius="12"
-                Width="500"
-                MaxHeight="600"
+                Width="700"
+                Height="650"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 BoxShadow="0 8 32 0 #40000000"
@@ -60,44 +58,92 @@
 				<ScrollViewer Grid.Row="1"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
-                              Padding="24">
-					<StackPanel Spacing="20">
+                              Padding="0"
+                              Margin="0">
+					<StackPanel Spacing="24" Margin="24">
 						
-						<!-- Agent Name Field -->
-						<StackPanel Spacing="6">
-							<TextBlock Text="Agent Name *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
-							<TextBox Text="{Binding AgentName}"
-                                     FontSize="16"
-                                     Padding="16,12"
-                                     CornerRadius="8"
-                                     BorderBrush="#dadce0"
-                                     Background="White"
-                                     Watermark="Enter agent name..."
-                                     MaxLength="100"/>
-							<TextBlock Text="Required field. Maximum 100 characters." 
-                                       FontSize="12" 
-                                       Foreground="#5f6368" 
-                                       Margin="4,0,0,0"/>
+						<!-- Basic Information Section -->
+						<StackPanel Spacing="16">
+							<TextBlock Text="Basic Information" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+							
+							<!-- Agent Name Field -->
+							<StackPanel Spacing="6">
+								<TextBlock Text="Agent Name *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
+								<TextBox Text="{Binding AgentName}"
+                                         FontSize="16"
+                                         Padding="16,12"
+                                         CornerRadius="8"
+                                         BorderBrush="#dadce0"
+                                         Background="White"
+                                         Watermark="Enter agent name..."
+                                         MaxLength="100"/>
+								<TextBlock Text="Required field. Maximum 100 characters." 
+                                           FontSize="12" 
+                                           Foreground="#5f6368" 
+                                           Margin="4,0,0,0"/>
+							</StackPanel>
+
+							<!-- Agent Description Field -->
+							<StackPanel Spacing="6">
+								<TextBlock Text="Description *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
+								<TextBox Text="{Binding AgentDescription}"
+                                         FontSize="16"
+                                         Padding="16,12"
+                                         CornerRadius="8"
+                                         BorderBrush="#dadce0"
+                                         Background="White"
+                                         Watermark="Enter agent description..."
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         Height="80"
+                                         MaxLength="500"/>
+								<TextBlock Text="Required field. Maximum 500 characters." 
+                                           FontSize="12" 
+                                           Foreground="#5f6368" 
+                                           Margin="4,0,0,0"/>
+							</StackPanel>
 						</StackPanel>
 
-						<!-- Agent Description Field -->
-						<StackPanel Spacing="6">
-							<TextBlock Text="Description *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
-							<TextBox Text="{Binding AgentDescription}"
-                                     FontSize="16"
+						<!-- Instructions Section -->
+						<StackPanel Spacing="16">
+							<StackPanel Spacing="4">
+								<TextBlock Text="Instructions" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="Define the agent's behavior, guidelines, and capabilities in markdown format."
+                                           FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
+							</StackPanel>
+							
+							<TextBox Text="{Binding AgentInstructions}"
+                                     FontSize="14"
                                      Padding="16,12"
                                      CornerRadius="8"
                                      BorderBrush="#dadce0"
                                      Background="White"
-                                     Watermark="Enter agent description..."
+                                     Watermark="Enter detailed instructions for the agent..."
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
-                                     MinHeight="120"
-                                     MaxLength="500"/>
-							<TextBlock Text="Required field. Maximum 500 characters." 
-                                       FontSize="12" 
-                                       Foreground="#5f6368" 
-                                       Margin="4,0,0,0"/>
+                                     Height="200"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+						</StackPanel>
+
+						<!-- Prompty Template Section -->
+						<StackPanel Spacing="16">
+							<StackPanel Spacing="4">
+								<TextBlock Text="Prompty Template" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="Define the agent's persona and system prompt in prompty format."
+                                           FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
+							</StackPanel>
+							
+							<TextBox Text="{Binding AgentPrompty}"
+                                     FontSize="14"
+                                     Padding="16,12"
+                                     CornerRadius="8"
+                                     BorderBrush="#dadce0"
+                                     Background="White"
+                                     Watermark="Enter prompty template content..."
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Height="200"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
 						</StackPanel>
 
 						<!-- Status Messages -->
@@ -132,6 +178,25 @@
 							</StackPanel>
 						</Border>
 
+						<!-- Template Buttons -->
+						<StackPanel Spacing="12">
+							<TextBlock Text="Quick Templates" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Button Classes="SecondaryButton"
+                                        Command="{Binding LoadInstructionTemplateCommand}"
+                                        Padding="12,8"
+                                        CornerRadius="6">
+									<TextBlock Text="Load Instruction Template" FontSize="12"/>
+								</Button>
+								<Button Classes="SecondaryButton"
+                                        Command="{Binding LoadPromptyTemplateCommand}"
+                                        Padding="12,8"
+                                        CornerRadius="6">
+									<TextBlock Text="Load Prompty Template" FontSize="12"/>
+								</Button>
+							</StackPanel>
+						</StackPanel>
+
 						<!-- Additional Info -->
 						<Border Background="#f8f9fa" 
 						        BorderBrush="#e8eaed" 
@@ -141,16 +206,19 @@
 							<StackPanel Spacing="8">
 								<StackPanel Orientation="Horizontal" Spacing="8">
 									<TextBlock Text="ℹ️" FontSize="16"/>
-									<TextBlock Text="Agent Configuration" FontWeight="Medium" Foreground="#202124"/>
+									<TextBlock Text="File Creation" FontWeight="Medium" Foreground="#202124"/>
 								</StackPanel>
-								<TextBlock Text="Template files will be automatically generated for this agent:"
+								<TextBlock Text="When saved, the following files will be created:"
                                            FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
 								<StackPanel Margin="16,4,0,0" Spacing="2">
-									<TextBlock Text="• Instructions file (.md)" FontSize="13" Foreground="#5f6368"/>
-									<TextBlock Text="• Persona template (.prompty)" FontSize="13" Foreground="#5f6368"/>
+									<TextBlock Text="• Instructions file (.md) - Contains the behavior guidelines" FontSize="13" Foreground="#5f6368"/>
+									<TextBlock Text="• Prompty template (.prompty) - Contains the system prompt configuration" FontSize="13" Foreground="#5f6368"/>
 								</StackPanel>
 							</StackPanel>
 						</Border>
+
+						<!-- Bottom spacing for scroll -->
+						<Border Height="40"/>
 					</StackPanel>
 				</ScrollViewer>
 

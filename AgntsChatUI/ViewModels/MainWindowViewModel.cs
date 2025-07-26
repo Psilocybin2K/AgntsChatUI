@@ -9,10 +9,17 @@
         public ChatViewModel ChatViewModel { get; }
         public AgentManagementViewModel AgentManagementViewModel { get; }
 
-        public MainWindowViewModel(IAgentService agentService, IFileTemplateService fileTemplateService, AgentManagementViewModel agentManagementViewModel)
+        private bool _isCommandPaletteVisible;
+        public bool IsCommandPaletteVisible
         {
-            this.DocumentManagementViewModel = new DocumentManagementViewModel();
-            this.ChatViewModel = new ChatViewModel(this.DocumentManagementViewModel, agentService);
+            get => this._isCommandPaletteVisible;
+            set => this.SetProperty(ref this._isCommandPaletteVisible, value);
+        }
+
+        public MainWindowViewModel(DocumentManagementViewModel documentManagementViewModel, ChatViewModel chatViewModel, AgentManagementViewModel agentManagementViewModel)
+        {
+            this.DocumentManagementViewModel = documentManagementViewModel;
+            this.ChatViewModel = chatViewModel;
             this.AgentManagementViewModel = agentManagementViewModel;
 
             // Subscribe to document selection changes

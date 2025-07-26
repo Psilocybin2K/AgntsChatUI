@@ -11,30 +11,8 @@
 	<!-- Design.DataContext removed due to constructor dependencies -->
 
 	<Grid>
-		<!-- Main Content: Agent List with Floating Add Button -->
-		<Grid>
-			<components:AgentListComponent DataContext="{Binding}"/>
-			
-			<!-- Floating Add Button -->
-			<Border HorizontalAlignment="Right"
-					VerticalAlignment="Bottom"
-					Margin="24">
-				<Button Command="{Binding AddAgentCommand}"
-						Classes="FloatingButton"
-						Width="64"
-						Height="64"
-						CornerRadius="32"
-						ToolTip.Tip="Add New Agent">
-					<StackPanel>
-						<TextBlock Text="+" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
-						<TextBlock Text="Add" FontSize="10" FontWeight="Medium" HorizontalAlignment="Center" Margin="0,-4,0,0"/>
-					</StackPanel>
-				</Button>
-			</Border>
-		</Grid>
-
-		<!-- Agent Edit Dialog -->
-		<components:AgentEditDialogComponent DataContext="{Binding}"/>
+		<!-- Main Content: Agent List (no floating button) -->
+		<components:AgentListComponent DataContext="{Binding}"/>
 
 		<!-- Global Loading Overlay (for operations like delete) -->
 		<Border Background="#80000000" 
