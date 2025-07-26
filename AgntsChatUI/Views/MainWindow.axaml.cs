@@ -22,13 +22,17 @@ namespace AgntsChatUI.Views
             // (actual show/hide logic will be handled via ViewModel binding)
 
             // Subscribe to CommandPalette close event
-            this.FindControl<Views.Components.CommandPaletteComponent>("CommandPalette").RequestClose += (s, e) =>
+            Components.CommandPaletteComponent? commandPalette = this.FindControl<Views.Components.CommandPaletteComponent>("CommandPalette");
+            if (commandPalette != null)
             {
-                if (this.DataContext is MainWindowViewModel vm)
+                commandPalette.RequestClose += (s, e) =>
                 {
-                    vm.IsCommandPaletteVisible = false;
-                }
-            };
+                    if (this.DataContext is MainWindowViewModel vm)
+                    {
+                        vm.IsCommandPaletteVisible = false;
+                    }
+                };
+            }
         }
 
         private async void MainWindow_KeyDown(object? sender, KeyEventArgs e)
@@ -85,11 +89,11 @@ namespace AgntsChatUI.Views
             {
                 // Subscribe to property changes for dynamic column width updates
                 viewModel.AgentManagementViewModel.PropertyChanged += this.OnAgentManagementPropertyChanged;
-                viewModel.DocumentManagementViewModel.PropertyChanged += this.OnDocumentManagementPropertyChanged;
+                viewModel.DataSourceManagementViewModel.PropertyChanged += this.OnDataSourceManagementPropertyChanged;
 
                 // Set initial state (collapsed by default)
                 this.UpdateAgentColumnWidth(false);
-                this.UpdateDocumentColumnWidth(false);
+                this.UpdateDataSourceColumnWidth(false);
             }
         }
 
@@ -102,12 +106,12 @@ namespace AgntsChatUI.Views
             }
         }
 
-        private void OnDocumentManagementPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void OnDataSourceManagementPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(DocumentManagementViewModel.IsExpanded) &&
-                sender is DocumentManagementViewModel documentViewModel)
+            if (e.PropertyName == nameof(DataSourceManagementViewModel.IsExpanded) &&
+                sender is DataSourceManagementViewModel dataSourceViewModel)
             {
-                this.UpdateDocumentColumnWidth(documentViewModel.IsExpanded);
+                this.UpdateDataSourceColumnWidth(dataSourceViewModel.IsExpanded);
             }
         }
 
@@ -120,12 +124,12 @@ namespace AgntsChatUI.Views
             }
         }
 
-        private void UpdateDocumentColumnWidth(bool isExpanded)
+        private void UpdateDataSourceColumnWidth(bool isExpanded)
         {
             Grid? mainGrid = this.FindControl<Grid>("MainGrid");
             if (mainGrid?.ColumnDefinitions.Count > 1)
             {
-                mainGrid.ColumnDefinitions[1].Width = isExpanded ? new GridLength(400, GridUnitType.Pixel) : new GridLength(50, GridUnitType.Pixel);
+                mainGrid.ColumnDefinitions[1].Width = isExpanded ? new GridLength(600, GridUnitType.Pixel) : new GridLength(50, GridUnitType.Pixel);
             }
         }
     }

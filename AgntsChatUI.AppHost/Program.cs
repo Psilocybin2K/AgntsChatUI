@@ -11,7 +11,7 @@ internal class Program
         IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
         // Register the Avalonia app as an Aspire project resource
-        var ui = builder.AddProject<Projects.AgntsChatUI>("agntschatui");
+        IResourceBuilder<ProjectResource> ui = builder.AddProject<Projects.AgntsChatUI>("agntschatui");
 
         // Logging
         Microsoft.Extensions.Logging.ILogger? logger = builder.Services.BuildServiceProvider().GetService<Microsoft.Extensions.Logging.ILoggerFactory>()?.CreateLogger("AppHost");

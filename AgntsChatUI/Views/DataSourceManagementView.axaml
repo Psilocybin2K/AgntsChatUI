@@ -1,0 +1,222 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AgntsChatUI.ViewModels"
+             xmlns:models="using:AgntsChatUI.Models"
+             x:Class="AgntsChatUI.Views.DataSourceManagementView"
+             x:DataType="vm:DataSourceManagementViewModel">
+
+    <Border Background="#f8f9fa" BorderBrush="#e8eaed" BorderThickness="0,0,1,0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header with Collapse/Expand -->
+            <Border Grid.Row="0" Padding="0" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
+                <Grid>
+                    <!-- Expanded Layout -->
+                    <Grid IsVisible="{Binding IsExpanded}" Margin="20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Collapse Button -->
+                        <Button Grid.Column="0" 
+                                Classes="IconButton" 
+                                Command="{Binding ToggleExpandedCommand}"
+                                Width="40" Height="40"
+                                Margin="0,0,12,0"
+                                ToolTip.Tip="Click to collapse panel">
+                            <Grid>
+                                <TextBlock Text="▼" FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Button>
+
+                        <!-- Title Section -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
+                                <TextBlock Text="📊" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Text="Data Source Management" FontSize="24" FontWeight="Medium" Foreground="#202124"/>
+                                <TextBlock Text="Configure and manage data sources for AI context" FontSize="14" Foreground="#5f6368"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Collapsed Layout -->
+                    <StackPanel IsVisible="{Binding !IsExpanded}" 
+                               Orientation="Vertical" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               Spacing="8"
+                               Margin="0,12">
+                        <!-- Expand Button -->
+                        <Button Classes="IconButton" 
+                                Command="{Binding ToggleExpandedCommand}"
+                                Width="32" Height="32"
+                                ToolTip.Tip="Click to expand panel"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="▶" FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        
+                        <!-- Icon and Label -->
+                        <TextBlock Text="📊" FontSize="16" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Data" FontSize="9" FontWeight="Medium" Foreground="#202124" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Status and Error Messages (only visible when expanded) -->
+            <StackPanel Grid.Row="1" Margin="20,16,20,0" IsVisible="{Binding IsExpanded}">
+                <!-- Loading Indicator -->
+                <Border IsVisible="{Binding IsLoading}" Background="#e3f2fd" BorderBrush="#2196f3" 
+                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⏳" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="#1976d2" 
+                                   TextWrapping="Wrap" MaxWidth="300"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Operation Status -->
+                <Border IsVisible="{Binding IsOperationInProgress}" Background="#fff3e0" BorderBrush="#ff9800" 
+                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔄" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                        <TextBlock Text="{Binding OperationStatus}" Foreground="#f57c00" 
+                                   TextWrapping="Wrap" MaxWidth="300"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Error Message -->
+                <Border IsVisible="{Binding HasError}" Background="#ffebee" BorderBrush="#f44336" 
+                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Grid.Column="0">
+                            <TextBlock Text="❌" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                            <TextBlock Text="{Binding ErrorMessage}" Foreground="#c62828" 
+                                       TextWrapping="Wrap" MaxWidth="280"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="IconButton" Command="{Binding ClearErrorCommand}"
+                                ToolTip.Tip="Clear error" Margin="8,0,0,0">
+                            <TextBlock Text="✕" FontSize="12" Foreground="#c62828"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                
+                <!-- Success Message -->
+                <Border IsVisible="{Binding StatusMessage}" Background="#e8f5e8" BorderBrush="#4caf50" 
+                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✅" Margin="0,0,8,0" VerticalAlignment="Top"/>
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="#2e7d32" 
+                                   TextWrapping="Wrap" MaxWidth="300"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            
+            <!-- Data Sources List (only visible when expanded) -->
+            <ScrollViewer Grid.Row="2" IsVisible="{Binding IsExpanded}" Margin="20,8,20,20">
+                <StackPanel>
+                    <!-- Action Buttons -->
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,16" HorizontalAlignment="Left">
+                        <Button Content="Add Data Source" Command="{Binding AddDataSourceCommand}" 
+                                Classes="PrimaryButton" Padding="16,8" CornerRadius="6"
+                                ToolTip.Tip="Import a specific file as a new data source">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="📄" FontSize="14"/>
+                                    <TextBlock Text="Add Data Source" FontWeight="Medium"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                        <Button Content="Refresh" Command="{Binding RefreshDataSourcesCommand}" 
+                                Classes="SecondaryButton" Padding="12,8" CornerRadius="6">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="🔄" FontSize="12"/>
+                                    <TextBlock Text="Refresh" FontWeight="Medium"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                    
+                    <!-- Data Source Count -->
+                    <TextBlock Text="{Binding DataSources.Count}" 
+                               Foreground="#666" FontSize="12" Margin="0,0,0,12" 
+                               HorizontalAlignment="Right"/>
+                    
+                    <!-- Data Sources -->
+                    <ItemsControl ItemsSource="{Binding DataSources}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="models:DataSourceDefinition">
+                                <Border Margin="0,0,0,8" Padding="16" Background="#fff" CornerRadius="6" 
+                                        BorderBrush="#e0e0e0" BorderThickness="1">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <!-- Header Row with Toggle and Actions -->
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <!-- Toggle Switch -->
+                                            <ToggleSwitch Grid.Column="0" 
+                                                          IsChecked="{Binding IsEnabled, Mode=TwoWay}" 
+                                                          Command="{Binding $parent[UserControl].DataContext.ToggleDataSourceCommand}" 
+                                                          CommandParameter="{Binding}" 
+                                                          Margin="0,0,16,0"/>
+                                            
+                                            <!-- Title and Type -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" 
+                                                           TextWrapping="Wrap" Margin="0,0,0,2"/>
+                                                <TextBlock Text="{Binding Type}" Foreground="#666" FontSize="12"/>
+                                            </StackPanel>
+                                            
+                                            <!-- Action Buttons -->
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" 
+                                                        VerticalAlignment="Center">
+                                                <Button Content="Edit" Classes="SecondaryButton" 
+                                                        Padding="8,4" CornerRadius="4" FontSize="12"
+                                                        Command="{Binding $parent[UserControl].DataContext.EditDataSourceCommand}"/>
+                                                <Button Content="Delete" Classes="SecondaryButton" 
+                                                        Padding="8,4" CornerRadius="4" FontSize="12"
+                                                        Command="{Binding $parent[UserControl].DataContext.DeleteDataSourceCommand}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        
+                                        <!-- Description Row -->
+                                        <TextBlock Grid.Row="1" Text="{Binding Description}" 
+                                                   Foreground="#888" FontSize="13" Margin="0,8,0,0"
+                                                   TextWrapping="Wrap" LineHeight="1.4"/>
+                                        
+                                        <!-- Metadata Row -->
+                                        <TextBlock Grid.Row="2" 
+                                                   Text="{Binding DateModified, StringFormat='Last modified: {0:yyyy-MM-dd HH:mm}'}" 
+                                                   Foreground="#999" FontSize="11" Margin="0,8,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl> 

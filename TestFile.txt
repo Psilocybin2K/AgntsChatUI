@@ -1,0 +1,11 @@
+This is a test file for the AgntsChatUI data sources functionality.
+
+It contains sample text that can be searched for using keywords like:
+- artificial intelligence
+- machine learning
+- data processing
+- software development
+
+The data source should be able to find this content when users search for relevant terms in their chat messages.
+
+This demonstrates the integration between chat context and file-based data sources. 

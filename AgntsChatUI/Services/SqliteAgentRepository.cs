@@ -47,6 +47,22 @@ namespace AgntsChatUI.Services
 
             using SqliteCommand command = new SqliteCommand(createTableCommand, connection);
             await command.ExecuteNonQueryAsync();
+
+            // ADD: DataSources table creation
+            string createDataSourcesTableCommand = @"
+                CREATE TABLE IF NOT EXISTS DataSources (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL,
+                    Description TEXT,
+                    Type INTEGER NOT NULL,
+                    ConfigurationJson TEXT,
+                    IsEnabled BOOLEAN DEFAULT 1,
+                    DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    DateModified DATETIME DEFAULT CURRENT_TIMESTAMP
+                )";
+
+            using SqliteCommand commandDataSources = new SqliteCommand(createDataSourcesTableCommand, connection);
+            await commandDataSources.ExecuteNonQueryAsync();
         }
 
         public async Task<IEnumerable<AgentDefinition>> GetAllAgentsAsync()

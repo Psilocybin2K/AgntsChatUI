@@ -5,7 +5,7 @@
 
     public partial class MainWindowViewModel : ViewModelBase
     {
-        public DocumentManagementViewModel DocumentManagementViewModel { get; }
+        public DataSourceManagementViewModel DataSourceManagementViewModel { get; }
         public ChatViewModel ChatViewModel { get; }
         public AgentManagementViewModel AgentManagementViewModel { get; }
 
@@ -16,24 +16,19 @@
             set => this.SetProperty(ref this._isCommandPaletteVisible, value);
         }
 
-        public MainWindowViewModel(DocumentManagementViewModel documentManagementViewModel, ChatViewModel chatViewModel, AgentManagementViewModel agentManagementViewModel)
+        public MainWindowViewModel(IAgentService agentService, IFileTemplateService fileTemplateService, 
+            AgentManagementViewModel agentManagementViewModel, DataSourceManagementViewModel dataSourceManagementViewModel,
+            IDataSourceManager dataSourceManager)
         {
-            this.DocumentManagementViewModel = documentManagementViewModel;
-            this.ChatViewModel = chatViewModel;
-            this.AgentManagementViewModel = agentManagementViewModel;
-
-            // Subscribe to document selection changes
-            this.DocumentManagementViewModel.DocumentSelected += this.OnDocumentSelected;
-
-            // Subscribe to agent changes to refresh chat agents
-            this.AgentManagementViewModel.AgentChanged += this.OnAgentChanged;
+            DataSourceManagementViewModel = dataSourceManagementViewModel;
+            
+            ChatViewModel = new ChatViewModel(agentService, dataSourceManager);
+            
+            AgentManagementViewModel = agentManagementViewModel;
+            
+            AgentManagementViewModel.AgentChanged += OnAgentChanged;
         }
-
-        private void OnDocumentSelected(ContextDocument document)
-        {
-            // Document selection handling - could be used for additional chat context updates
-        }
-
+        
         private async void OnAgentChanged()
         {
             // Refresh the chat agents when agents are modified

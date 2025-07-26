@@ -5,10 +5,10 @@ namespace AgntsChatUI
     using System.Net.Http; // Add this using directive
     using System.Threading.Tasks;
 
+    using AgntsChatUI.ServiceDefaults; // Add this for Aspire extension methods
     using AgntsChatUI.Services;
     using AgntsChatUI.ViewModels;
     using AgntsChatUI.Views;
-    using AgntsChatUI.ServiceDefaults; // Add this for Aspire extension methods
 
     using Avalonia;
     using Avalonia.Controls.ApplicationLifetimes;
@@ -60,8 +60,8 @@ namespace AgntsChatUI
                 this._host = builder.Build();
 
                 // Add a startup log
-                var loggerFactory = this._host.Services.GetRequiredService<ILoggerFactory>();
-                var logger = loggerFactory.CreateLogger<App>();
+                ILoggerFactory loggerFactory = this._host.Services.GetRequiredService<ILoggerFactory>();
+                ILogger<App> logger = loggerFactory.CreateLogger<App>();
                 logger.LogInformation("Aspire-enabled Avalonia app started.");
 
                 // Start the host (important for background services, logging, etc.)
@@ -72,6 +72,11 @@ namespace AgntsChatUI
 
                 // Get MainWindowViewModel from the host's service provider
                 MainWindowViewModel mainWindowViewModel = this._host.Services.GetRequiredService<MainWindowViewModel>();
+
+                // Initialize data source manager
+                IDataSourceManager dataSourceManager = this._host.Services.GetRequiredService<IDataSourceManager>();
+                _ = Task.Run(async () => await dataSourceManager.InitializeAsync());
+
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = mainWindowViewModel,
@@ -101,11 +106,20 @@ namespace AgntsChatUI
             services.AddSingleton<IFileTemplateService, FileTemplateService>();
             services.AddSingleton<PlaywrightManagementService>();
 
-            // Register ViewModels
-            services.AddTransient<DocumentManagementViewModel>();
-            services.AddTransient<ChatViewModel>();
-            services.AddTransient<AgentManagementViewModel>();
+            // ADD: Data source services
+            services.AddSingleton<IDataSourceRepository, SqliteDataSourceRepository>();
+            services.AddSingleton<IDataSourceService, DataSourceService>();
+            services.AddSingleton<IDataSourceManager, DataSourceManager>();
+
+            // REMOVE: Document services
+            // services.AddSingleton<IDocumentService, DocumentService>(); // DELETE THIS LINE
+
+            // Modified ViewModels
             services.AddTransient<MainWindowViewModel>();
+            services.AddTransient<ChatViewModel>();
+            services.AddTransient<DataSourceManagementViewModel>(); // NEW
+            // services.AddTransient<DocumentManagementViewModel>(); // DELETE THIS LINE
+            services.AddTransient<AgentManagementViewModel>();
 
             // Add your new API service client
             services.AddSingleton<MyBackendApiService>();

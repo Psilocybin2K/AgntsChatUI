@@ -21,10 +21,10 @@
 
     public partial class ChatViewModel : ViewModelBase
     {
-        private readonly DocumentManagementViewModel _documentManagementViewModel;
         private readonly ChatHistory _chatHistory;
         private readonly ChatAgentFactory _chatAgentFactory;
         private readonly IAgentService _agentService;
+        private readonly IDataSourceManager _dataSourceManager;
         private readonly ILogger<ChatViewModel> _logger;
 
         [ObservableProperty]
@@ -70,20 +70,12 @@
 
         public event Action? ScrollToBottomRequested;
 
-        public ChatViewModel() : this(null, null, null)
+        public ChatViewModel(IAgentService agentService, IDataSourceManager dataSourceManager, ILogger<ChatViewModel>? logger = null)
         {
-        }
-
-        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel) : this(documentManagementViewModel, null, null)
-        {
-        }
-
-        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel, IAgentService? agentService, ILogger<ChatViewModel>? logger)
-        {
-            this._documentManagementViewModel = documentManagementViewModel ?? new DocumentManagementViewModel();
             this._chatHistory = new ChatHistory();
             this._chatAgentFactory = new ChatAgentFactory();
             this._agentService = agentService ?? throw new ArgumentNullException(nameof(agentService), "IAgentService is required for ChatViewModel");
+            this._dataSourceManager = dataSourceManager ?? throw new ArgumentNullException(nameof(dataSourceManager), "IDataSourceManager is required for ChatViewModel");
             this._logger = logger ?? new Microsoft.Extensions.Logging.Abstractions.NullLogger<ChatViewModel>();
             this.InitializeAsync();
         }
@@ -308,7 +300,7 @@
             this._logger.LogInformation("ChatRequest {@ChatRequest}", JsonSerializer.Serialize(chatRequest, new JsonSerializerOptions { WriteIndented = true }));
 
             string originalMessage = this.MessageText;
-            string messageWithContext = await this.BuildMessageWithDocumentContext(originalMessage);
+            string messageWithContext = await this.BuildMessageWithDataSourceContext(originalMessage);
 
             MessageResult userMessage = new MessageResult(
                 "ME",
@@ -513,13 +505,11 @@
 
         #endregion
 
-        private async Task<string> BuildMessageWithDocumentContext(string userMessage)
+        private async Task<string> BuildMessageWithDataSourceContext(string userMessage)
         {
-            List<ContextDocument> includedDocuments = this._documentManagementViewModel.Documents
-                .Where(doc => doc.IsIncludedInChat)
-                .ToList();
+            IEnumerable<DataSourceResult> searchResults = await _dataSourceManager.SearchAllSourcesAsync(userMessage);
 
-            if (!includedDocuments.Any())
+            if (!searchResults.Any())
             {
                 return userMessage;
             }
@@ -527,45 +517,16 @@
             StringBuilder messageBuilder = new StringBuilder();
             messageBuilder.AppendLine(userMessage);
             messageBuilder.AppendLine();
-            messageBuilder.AppendLine("--- DOCUMENT CONTEXT ---");
+            messageBuilder.AppendLine("--- DATA SOURCE CONTEXT ---");
 
-            foreach (ContextDocument? document in includedDocuments)
+            foreach (DataSourceResult result in searchResults)
             {
-                messageBuilder.AppendLine($"--- {document.Title} ---");
-
-                try
-                {
-                    string documentText = await this.ReadDocumentText(document.FilePath);
-                    messageBuilder.AppendLine(documentText);
-                }
-                catch (Exception ex)
-                {
-                    messageBuilder.AppendLine($"[Error reading document: {ex.Message}]");
-                }
-
+                messageBuilder.AppendLine($"--- {result.Title} ({result.SourceName}) ---");
+                messageBuilder.AppendLine(result.Content ?? string.Empty);
                 messageBuilder.AppendLine();
             }
 
             return messageBuilder.ToString();
-        }
-
-        private async Task<string> ReadDocumentText(string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                return "[Document file not found]";
-            }
-
-            string extension = Path.GetExtension(filePath).ToLowerInvariant();
-
-            return extension switch
-            {
-                ".txt" => await File.ReadAllTextAsync(filePath),
-                ".pdf" => "[PDF content extraction not implemented - placeholder text]",
-                ".doc" or ".docx" => "[Word document content extraction not implemented - placeholder text]",
-                ".xls" or ".xlsx" => "[Excel document content extraction not implemented - placeholder text]",
-                _ => $"[Content extraction not supported for {extension} files]"
-            };
         }
 
         [RelayCommand]

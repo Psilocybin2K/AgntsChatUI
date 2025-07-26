@@ -15,19 +15,17 @@
 
 	<Grid IsEnabled="True" x:Name="MainGrid">
 		<Grid.ColumnDefinitions>
-			<!-- Agent Management Panel - Dynamic width based on expanded state -->
-			<ColumnDefinition Width="50"/>
-			<!-- Document Management Panel - Dynamic width based on expanded state -->
-			<ColumnDefinition Width="50"/>
-			<!-- Chat Area - Takes remaining space -->
-			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="350"/> <!-- Agent Management -->
+			<ColumnDefinition Width="380"/> <!-- Data Source Management (was Document Management) -->
+			<ColumnDefinition Width="*"/>   <!-- Chat Area -->
 		</Grid.ColumnDefinitions>
 
 		<!-- Agent Management Component -->
 		<views:AgentManagementView Grid.Column="0" DataContext="{Binding AgentManagementViewModel}"/>
 
-		<!-- Document Management Component -->
-		<views:DocumentManagementView Grid.Column="1" DataContext="{Binding DocumentManagementViewModel}"/>
+		<!-- REPLACE: Document Management with Data Source Management -->
+		<!-- OLD: <views:DocumentManagementView Grid.Column="1" DataContext="{Binding DocumentManagementViewModel}"/> -->
+		<views:DataSourceManagementView Grid.Column="1" DataContext="{Binding DataSourceManagementViewModel}"/>
 
 		<!-- Main Chat Area -->
 		<Grid Grid.Column="2" IsEnabled="True">

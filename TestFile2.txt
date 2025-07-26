@@ -1,0 +1,14 @@
+This is a second test file for AgntsChatUI file selection and import functionality.
+
+Content includes information about:
+- Database management
+- API integrations  
+- User authentication systems
+- Configuration settings
+- Performance optimization techniques
+
+This file should be discoverable when users search for terms like "database", "API", "authentication", or "performance" in their chat conversations.
+
+The new file selection feature allows users to specifically choose which files to import as data sources, rather than scanning entire directories.
+
+This demonstrates the flexibility of the data source system in AgntsChatUI. 
