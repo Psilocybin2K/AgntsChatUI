@@ -1,10 +1,10 @@
-using AgntsChatUI.AI;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace AgntsChatUI.Services
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    using AgntsChatUI.AI;
+
     /// <summary>
     /// Interface for agent data access operations
     /// </summary>
@@ -35,4 +35,4 @@ namespace AgntsChatUI.Services
         /// </summary>
         Task InitializeDatabaseAsync();
     }
-} 
+}

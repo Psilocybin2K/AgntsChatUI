@@ -8,8 +8,8 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="AgntsChatUI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="Document Chat Assistant"
-        MinWidth="800" MinHeight="600">
+        Title="Agent Chat Assistant"
+        MinWidth="1200" MinHeight="600">
 
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
@@ -17,15 +17,19 @@
 
 	<Grid IsEnabled="True">
 		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="320"/>
 			<ColumnDefinition Width="400"/>
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 
+		<!-- Agent Management Component -->
+		<views:AgentManagementView Grid.Column="0" DataContext="{Binding AgentManagementViewModel}"/>
+
 		<!-- Document Management Component -->
-		<views:DocumentManagementView Grid.Column="0" DataContext="{Binding DocumentManagementViewModel}"/>
+		<views:DocumentManagementView Grid.Column="1" DataContext="{Binding DocumentManagementViewModel}"/>
 
 		<!-- Main Chat Area -->
-		<Grid Grid.Column="1" IsEnabled="True">
+		<Grid Grid.Column="2" IsEnabled="True">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="*"/>
@@ -43,6 +47,6 @@
 		</Grid>
 
 		<!-- Kernel Configuration Dialog Overlay -->
-		<components:KernelConfigurationDialogComponent Grid.ColumnSpan="2" DataContext="{Binding ChatViewModel}"/>
+		<components:KernelConfigurationDialogComponent Grid.ColumnSpan="3" DataContext="{Binding ChatViewModel}"/>
 	</Grid>
 </Window>

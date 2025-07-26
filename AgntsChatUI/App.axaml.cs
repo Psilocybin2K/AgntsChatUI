@@ -1,5 +1,6 @@
 namespace AgntsChatUI
 {
+    using System;
     using System.Linq;
 
     using AgntsChatUI.Services;
@@ -10,8 +11,8 @@ namespace AgntsChatUI
     using Avalonia.Controls.ApplicationLifetimes;
     using Avalonia.Data.Core.Plugins;
     using Avalonia.Markup.Xaml;
+
     using Microsoft.Extensions.DependencyInjection;
-    using System;
 
     public partial class App : Application
     {
@@ -27,15 +28,15 @@ namespace AgntsChatUI
             if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Set up dependency injection
-                var services = new ServiceCollection();
-                ConfigureServices(services);
-                _serviceProvider = services.BuildServiceProvider();
+                ServiceCollection services = new ServiceCollection();
+                this.ConfigureServices(services);
+                this._serviceProvider = services.BuildServiceProvider();
 
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 this.DisableAvaloniaDataAnnotationValidation();
-                
-                var mainWindowViewModel = _serviceProvider.GetRequiredService<MainWindowViewModel>();
+
+                MainWindowViewModel mainWindowViewModel = this._serviceProvider.GetRequiredService<MainWindowViewModel>();
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = mainWindowViewModel,
@@ -50,11 +51,13 @@ namespace AgntsChatUI
             // Register services
             services.AddSingleton<IAgentRepository, SqliteAgentRepository>();
             services.AddSingleton<IAgentService, AgentService>();
-            
+            services.AddSingleton<IFileTemplateService, FileTemplateService>();
+
             // Register ViewModels
             services.AddTransient<MainWindowViewModel>();
             services.AddTransient<ChatViewModel>();
             services.AddTransient<DocumentManagementViewModel>();
+            services.AddTransient<AgentManagementViewModel>();
         }
 
         private void DisableAvaloniaDataAnnotationValidation()

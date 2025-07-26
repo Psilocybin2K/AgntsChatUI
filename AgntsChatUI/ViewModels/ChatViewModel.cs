@@ -94,14 +94,14 @@
             await this.LoadAgentsAsync();
         }
 
-        private async Task LoadAgentsAsync()
+        public async Task LoadAgentsAsync()
         {
             this.IsLoadingAgents = true;
 
             try
             {
                 // Use the agent service to load agents from the database
-                var agentDefinitions = await this._agentService.GetAllAgentsAsync();
+                IEnumerable<AgentDefinition> agentDefinitions = await this._agentService.GetAllAgentsAsync();
                 this.AvailableAgents = new ObservableCollection<AgentDefinition>(agentDefinitions);
 
                 if (this.AvailableAgents.Any())
@@ -150,6 +150,7 @@
             {
                 UpdateCurrentAgents();
             }
+
             UpdateCanSendMessage();
             UpdateStatus();
         }
@@ -224,7 +225,7 @@
                 this.StatusText = $"● {this.SelectedAgents.Count} agent(s) selected - ready to send";
                 this.StatusColor = "#34a853"; // Green for ready
             }
-            
+
             System.Diagnostics.Debug.WriteLine($"Status updated: {this.StatusText}, Color: {this.StatusColor}, CanSendMessage: {this.CanSendMessage}");
         }
 
@@ -530,7 +531,7 @@
         public void OnAgentSelectionChanged(AgentDefinition agent)
         {
             System.Diagnostics.Debug.WriteLine($"OnAgentSelectionChanged called for agent: {agent.Name}, IsSelected: {agent.IsSelected}");
-            
+
             if (agent.IsSelected)
             {
                 if (!this.SelectedAgents.Contains(agent))
@@ -544,6 +545,7 @@
                 this.SelectedAgents.Remove(agent);
                 System.Diagnostics.Debug.WriteLine($"Removed agent: {agent.Name}, Total selected: {this.SelectedAgents.Count}");
             }
+
             this.UpdateCanSendMessage();
             this.UpdateStatus();
         }

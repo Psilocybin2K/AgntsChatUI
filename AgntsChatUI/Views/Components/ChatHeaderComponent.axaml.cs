@@ -1,9 +1,10 @@
 namespace AgntsChatUI.Views.Components
 {
-    using Avalonia.Controls;
-    using Avalonia.Interactivity;
     using AgntsChatUI.AI;
     using AgntsChatUI.ViewModels;
+
+    using Avalonia.Controls;
+    using Avalonia.Interactivity;
 
     public partial class ChatHeaderComponent : UserControl
     {

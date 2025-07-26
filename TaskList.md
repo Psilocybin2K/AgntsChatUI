@@ -1,83 +1,98 @@
-## Current State Analysis
+# Agent Management Implementation Plan
 
-- Agents are currently loaded from `agents.config.json` file in `ChatViewModel.LoadAgentsAsync()`
-- `AgentDefinition` objects contain: Name, Description, InstructionsPath, PromptyPath, IsSelected
-- `ChatAgentFactory.LoadAgentsFromConfig()` handles the JSON deserialization
-- The system populates `AvailableAgents` collection for UI binding
+## Task Summary
 
-## Implementation Plan
+Create an agent management interface that allows users to create, edit, and delete agents from the database. The system will automatically generate template files in `PromptTemplates\Instructions\` and `PromptTemplates\Personas\` directories when creating new agents, populating the InstructionsPath and PromptyPath properties accordingly. This provides a streamlined workflow for agent configuration without manual file management.
 
-### 1. Database Infrastructure
+## Phase 1: Core Service Infrastructure
 
-- Add SQLite NuGet package (`Microsoft.Data.Sqlite`) to the project
-- Create database schema with single `Agents` table containing:
-  - Id (Primary Key, Integer, Auto-increment)
-  - Name (Text, Not Null)
-  - Description (Text)
-  - InstructionsPath (Text)
-  - PromptyPath (Text)
+### Step 1.1: Create Template File Service Interface
 
-### 2. Data Access Layer
+- **Add**: `AgntsChatUI/Services/IFileTemplateService.cs`
+  - Interface with methods: CreateInstructionFile, CreatePersonaFile, EnsureDirectoriesExist
 
-- Create `IAgentRepository` interface defining CRUD operations
-- Implement `SqliteAgentRepository` class with methods:
-  - `GetAllAgentsAsync()` - retrieve all agents
-  - `SaveAgentAsync(AgentDefinition)` - insert/update agent
-  - `DeleteAgentAsync(int id)` - remove agent
-- Add database connection management and initialization logic
+### Step 1.2: Implement Template File Service
 
-### 3. Service Layer Updates
+- **Add**: `AgntsChatUI/Services/FileTemplateService.cs`
+  - Implementation creating files in `PromptTemplates\Instructions\` and `PromptTemplates\Personas\`
+  - Methods to generate default content based on agent name/description
 
-- Create `IAgentService` interface as abstraction layer
-- Implement `AgentService` class that uses the repository
-- Handle database file creation and initial setup
+### Step 1.3: Register Service in DI Container
 
-### 4. Model Updates
+- **Modify**: `AgntsChatUI/App.axaml.cs`
+  - Add `services.AddSingleton<IFileTemplateService, FileTemplateService>();` in ConfigureServices method
 
-- Add `Id` property to `AgentDefinition` class (nullable int for new agents)
-- Ensure model is compatible with SQLite data types
+## Phase 2: Agent Management ViewModel
 
-### 5. ViewModel Modifications
+### Step 2.1: Create Agent Management ViewModel
 
-- Update `ChatViewModel.LoadAgentsAsync()` to use `IAgentService` instead of JSON file reading
-- Remove JSON file loading logic
-- Inject `IAgentService` via constructor dependency
+- **Add**: `AgntsChatUI/ViewModels/AgentManagementViewModel.cs`
+  - Properties: Agents collection, SelectedAgent, IsEditing, form fields
+  - Commands: AddAgent, EditAgent, DeleteAgent, SaveAgent, CancelEdit
+  - Dependency on IAgentService and IFileTemplateService
 
-### 6. Dependency Injection Setup
+## Phase 3: UI Components
 
-- Register `IAgentRepository`, `IAgentService` implementations in DI container
-- Update `ChatViewModel` constructor to accept `IAgentService`
-- Modify `MainWindowViewModel` to pass service to `ChatViewModel`
+### Step 3.1: Create Agent List Component
 
-### 7. Database Initialization
+- **Add**: `AgntsChatUI/Views/Components/AgentListComponent.axaml`
+- **Add**: `AgntsChatUI/Views/Components/AgentListComponent.axaml.cs`
+  - Display agents in list with edit/delete buttons
+  - Handle selection events
 
-- Create database file in application startup if it doesn't exist
-- Add database initialization logic in `App.axaml.cs` or service constructor
-- Handle database file location (app directory or user data folder)
+### Step 3.2: Create Agent Form Component
 
-### 8. Migration Strategy
+- **Add**: `AgntsChatUI/Views/Components/AgentFormComponent.axaml`
+- **Add**: `AgntsChatUI/Views/Components/AgentFormComponent.axaml.cs`
+  - Form fields: Name, Description
+  - Save/Cancel buttons
+  - Validation for required fields
 
-- On first run, if the database does not exist, read agent definitions from `agents.config.json`
-- Use the JSON file to initialize the agent database with existing agent data
-- Retain `agents.config.json` for future reference; do not delete after migration
+### Step 3.3: Create Main Agent Management View
 
-## Required File Changes
+- **Add**: `AgntsChatUI/Views/AgentManagementView.axaml`
+- **Add**: `AgntsChatUI/Views/AgentManagementView.axaml.cs`
+  - Layout with AgentListComponent and AgentFormComponent
+  - Header with "Add New Agent" button
 
-- **AgntsChatUI.csproj**: Add SQLite NuGet package
-- **Models/AgentDefinition.cs**: Add Id property  
-- **Services/IAgentRepository.cs**: New interface
-- **Services/SqliteAgentRepository.cs**: New implementation
-- **Services/IAgentService.cs**: New interface
-- **Services/AgentService.cs**: New implementation
-- **ViewModels/ChatViewModel.cs**: Update LoadAgentsAsync method and constructor
-- **ViewModels/MainWindowViewModel.cs**: Update to pass agent service
-- **App.axaml.cs**: Add DI registration and database initialization
+## Phase 4: Main Window Integration
 
-## Key Considerations
+### Step 4.1: Update Main Window ViewModel
 
-- Database file location and permissions
-- Error handling for database operations
-- Async/await patterns for database calls
-- Maintaining existing UI functionality and data binding
+- **Modify**: `AgntsChatUI/ViewModels/MainWindowViewModel.cs`
+  - Add `AgentManagementViewModel` property
+  - Update constructor to accept and initialize AgentManagementViewModel
 
-This plan maintains the current functionality while replacing the storage mechanism with SQLite, following SOLID principles and keeping the implementation focused and minimal.
+### Step 4.2: Update Main Window Layout
+
+- **Modify**: `AgntsChatUI/Views/MainWindow.axaml`
+  - Change from 2-column to 3-column layout OR add TabView
+  - Add AgentManagementView as new column/tab
+
+### Step 4.3: Update DI Registration
+
+- **Modify**: `AgntsChatUI/App.axaml.cs`
+  - Add `services.AddTransient<AgentManagementViewModel>();` in ConfigureServices method
+
+## Phase 5: Chat Integration Updates
+
+### Step 5.1: Update Chat Agent Loading
+
+- **Modify**: `AgntsChatUI/ViewModels/ChatViewModel.cs`
+  - Ensure LoadAgentsAsync method refreshes when new agents are added
+  - Add event subscription to AgentManagementViewModel for agent changes
+
+### Step 5.2: Update Main Window for Event Wiring
+
+- **Modify**: `AgntsChatUI/ViewModels/MainWindowViewModel.cs`
+  - Wire AgentManagementViewModel.AgentChanged event to ChatViewModel.LoadAgentsAsync
+
+## Summary of File Operations
+
+- **Add**: 8 new files
+- **Modify**: 4 existing files
+- **Remove**: 0 files
+
+**New Files**: IFileTemplateService.cs, FileTemplateService.cs, AgentManagementViewModel.cs, AgentListComponent.axaml/.cs, AgentFormComponent.axaml/.cs, AgentManagementView.axaml/.cs
+
+**Modified Files**: App.axaml.cs, MainWindowViewModel.cs, MainWindow.axaml, ChatViewModel.cs

@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AgntsChatUI.ViewModels"
+             xmlns:components="using:AgntsChatUI.Views.Components"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="AgntsChatUI.Views.AgentManagementView"
+             x:DataType="vm:AgentManagementViewModel">
+
+	<Design.DataContext>
+		<vm:AgentManagementViewModel/>
+	</Design.DataContext>
+
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="400"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+
+		<!-- Left Panel: Agent List with Floating Add Button overlayed -->
+		<Grid Grid.Column="0">
+			<components:AgentListComponent DataContext="{Binding}"/>
+			<Border HorizontalAlignment="Right"
+					VerticalAlignment="Bottom"
+					Margin="20">
+				<Button Command="{Binding AddAgentCommand}"
+						Classes="FloatingButton"
+						Width="56"
+						Height="56"
+						CornerRadius="28"
+						ToolTip.Tip="Add New Agent">
+					<TextBlock Text="+" FontSize="24" FontWeight="Bold"/>
+				</Button>
+			</Border>
+		</Grid>
+
+		<!-- Right Panel: Agent Form -->
+		<components:AgentFormComponent Grid.Column="1" DataContext="{Binding}"/>
+
+		<!-- Global Loading Overlay -->
+		<Border Grid.ColumnSpan="2"
+				Background="#80000000" 
+				IsVisible="{Binding IsLoading}">
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+				<TextBlock Text="⏳" FontSize="48" HorizontalAlignment="Center"/>
+				<TextBlock Text="Processing..." Foreground="White" FontSize="16" FontWeight="Medium"/>
+			</StackPanel>
+		</Border>
+	</Grid>
+</UserControl> 

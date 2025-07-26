@@ -1,13 +1,14 @@
-using AgntsChatUI.AI;
-using System.Text.Json;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using System.IO;
-
 namespace AgntsChatUI.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+
+    using AgntsChatUI.AI;
+
     /// <summary>
     /// Service layer implementation for agent management operations
     /// </summary>
@@ -18,55 +19,75 @@ namespace AgntsChatUI.Services
 
         public AgentService(IAgentRepository repository)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            this._repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         public async Task InitializeAsync()
         {
-            if (_isInitialized)
+            if (this._isInitialized)
+            {
                 return;
+            }
 
-            await _repository.InitializeDatabaseAsync();
-            
+            await this._repository.InitializeDatabaseAsync();
+
             // Attempt to migrate from JSON config if it exists
-            await MigrateFromJsonConfigAsync();
-            
-            _isInitialized = true;
+            await this.MigrateFromJsonConfigAsync();
+
+            this._isInitialized = true;
         }
 
         public async Task<IEnumerable<AgentDefinition>> GetAllAgentsAsync()
         {
-            await EnsureInitializedAsync();
-            return await _repository.GetAllAgentsAsync();
+            await this.EnsureInitializedAsync();
+            return await this._repository.GetAllAgentsAsync();
         }
 
         public async Task<AgentDefinition> SaveAgentAsync(AgentDefinition agent)
         {
-            await EnsureInitializedAsync();
-            
-            if (string.IsNullOrWhiteSpace(agent.Name))
-                throw new ArgumentException("Agent name cannot be null or empty", nameof(agent));
+            await this.EnsureInitializedAsync();
 
-            return await _repository.SaveAgentAsync(agent);
+            return string.IsNullOrWhiteSpace(agent.Name)
+                ? throw new ArgumentException("Agent name cannot be null or empty", nameof(agent))
+                : await this._repository.SaveAgentAsync(agent);
         }
 
         public async Task<bool> DeleteAgentAsync(int id)
         {
-            await EnsureInitializedAsync();
-            return await _repository.DeleteAgentAsync(id);
+            await this.EnsureInitializedAsync();
+            return await this._repository.DeleteAgentAsync(id);
         }
 
         public async Task<bool> MigrateFromJsonConfigAsync()
         {
-            const string configFileName = "agents.config.json";
-            
-            if (!File.Exists(configFileName))
+            // Try multiple locations for the config file
+            string[] possiblePaths = new[]
+            {
+                "agents.config.json", // Current directory
+                Path.Combine("..", "AgntsChatUI.AI", "agents.config.json"), // Relative to current directory
+                Path.Combine(Directory.GetCurrentDirectory(), "..", "AgntsChatUI.AI", "agents.config.json"), // Absolute path
+            };
+
+            string? configFileName = null;
+            foreach (string? path in possiblePaths)
+            {
+                string fullPath = Path.GetFullPath(path);
+                if (File.Exists(fullPath))
+                {
+                    configFileName = fullPath;
+                    break;
+                }
+            }
+
+            if (configFileName == null)
+            {
                 return false;
+            }
 
             try
             {
                 // Read existing agents from database to check if migration is needed
-                var existingAgents = await _repository.GetAllAgentsAsync();
+                IEnumerable<AgentDefinition> existingAgents = await this._repository.GetAllAgentsAsync();
                 if (existingAgents.Any())
                 {
                     // Database already has data, no migration needed
@@ -75,7 +96,7 @@ namespace AgntsChatUI.Services
 
                 // Read JSON configuration file
                 string configContent = await File.ReadAllTextAsync(configFileName);
-                var jsonAgents = JsonSerializer.Deserialize<AgentDefinition[]>(configContent);
+                AgentDefinition[]? jsonAgents = JsonSerializer.Deserialize<AgentDefinition[]>(configContent);
 
                 if (jsonAgents == null || !jsonAgents.Any())
                 {
@@ -83,16 +104,16 @@ namespace AgntsChatUI.Services
                 }
 
                 // Migrate each agent to the database
-                foreach (var agent in jsonAgents)
+                foreach (AgentDefinition agent in jsonAgents)
                 {
                     // Ensure Id is null for new agents
                     agent.Id = null;
-                    await _repository.SaveAgentAsync(agent);
+                    await this._repository.SaveAgentAsync(agent);
                 }
 
                 // Optionally, you can rename or delete the old config file
                 // File.Move(configFileName, $"{configFileName}.backup");
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -105,10 +126,10 @@ namespace AgntsChatUI.Services
 
         private async Task EnsureInitializedAsync()
         {
-            if (!_isInitialized)
+            if (!this._isInitialized)
             {
-                await InitializeAsync();
+                await this.InitializeAsync();
             }
         }
     }
-} 
+}

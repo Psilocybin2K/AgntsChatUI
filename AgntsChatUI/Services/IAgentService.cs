@@ -1,10 +1,10 @@
-using AgntsChatUI.AI;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace AgntsChatUI.Services
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    using AgntsChatUI.AI;
+
     /// <summary>
     /// Service layer interface for agent management operations
     /// </summary>
@@ -41,4 +41,4 @@ namespace AgntsChatUI.Services
         /// <returns>True if migration was performed, false if no migration was needed</returns>
         Task<bool> MigrateFromJsonConfigAsync();
     }
-} 
+}
