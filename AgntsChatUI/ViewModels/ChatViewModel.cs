@@ -10,6 +10,7 @@
 
     using AgntsChatUI.AI;
     using AgntsChatUI.Models;
+    using AgntsChatUI.Services;
 
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
@@ -21,6 +22,7 @@
         private readonly DocumentManagementViewModel _documentManagementViewModel;
         private readonly ChatHistory _chatHistory;
         private readonly ChatAgentFactory _chatAgentFactory;
+        private readonly IAgentService _agentService;
 
         [ObservableProperty]
         private string messageText = string.Empty;
@@ -69,17 +71,20 @@
 
 
 
-        public ChatViewModel() : this(null)
+        public ChatViewModel() : this(null, null)
         {
         }
 
-        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel)
+        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel) : this(documentManagementViewModel, null)
+        {
+        }
+
+        public ChatViewModel(DocumentManagementViewModel? documentManagementViewModel, IAgentService? agentService)
         {
             this._documentManagementViewModel = documentManagementViewModel ?? new DocumentManagementViewModel();
             this._chatHistory = new ChatHistory();
             this._chatAgentFactory = new ChatAgentFactory();
-
-
+            this._agentService = agentService ?? throw new ArgumentNullException(nameof(agentService), "IAgentService is required for ChatViewModel");
 
             this.InitializeAsync();
         }
@@ -95,19 +100,8 @@
 
             try
             {
-                IEnumerable<ChatAgent> agents = ChatAgentFactory.LoadAgentsFromConfig();
-                List<AgentDefinition> agentDefinitions = new List<AgentDefinition>();
-
-                if (File.Exists("agents.config.json"))
-                {
-                    string config = await File.ReadAllTextAsync("agents.config.json");
-                    AgentDefinition[]? definitions = System.Text.Json.JsonSerializer.Deserialize<AgentDefinition[]>(config);
-                    if (definitions != null)
-                    {
-                        agentDefinitions.AddRange(definitions);
-                    }
-                }
-
+                // Use the agent service to load agents from the database
+                var agentDefinitions = await this._agentService.GetAllAgentsAsync();
                 this.AvailableAgents = new ObservableCollection<AgentDefinition>(agentDefinitions);
 
                 if (this.AvailableAgents.Any())
@@ -119,6 +113,18 @@
                     this.UpdateCurrentAgents();
                     this.UpdateCanSendMessage();
                     this.UpdateStatus();
+                }
+                else
+                {
+                    // No agents found in database, show a helpful message
+                    AgentDefinition noAgentsAgent = new AgentDefinition
+                    {
+                        Name = "No Agents Available",
+                        Description = "No agents have been configured yet. Please add agents to get started.",
+                        InstructionsPath = string.Empty,
+                        PromptyPath = string.Empty
+                    };
+                    this.AvailableAgents = new ObservableCollection<AgentDefinition> { noAgentsAgent };
                 }
             }
             catch (Exception ex)
