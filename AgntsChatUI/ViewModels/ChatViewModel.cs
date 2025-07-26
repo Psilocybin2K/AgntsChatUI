@@ -20,6 +20,7 @@
     {
         private readonly DocumentManagementViewModel _documentManagementViewModel;
         private readonly ChatHistory _chatHistory;
+        private readonly ChatAgentFactory _chatAgentFactory;
 
         [ObservableProperty]
         private string messageText = string.Empty;
@@ -37,7 +38,26 @@
         private ObservableCollection<AgentDefinition> availableAgents = [];
 
         [ObservableProperty]
-        private AgentDefinition? selectedAgent;
+        private ObservableCollection<AgentDefinition> selectedAgents = [];
+
+        [ObservableProperty]
+        private bool isOrchestrationRunning = false;
+
+        // Computed property for backward compatibility - returns first selected agent
+        public AgentDefinition? SelectedAgent => this.SelectedAgents.FirstOrDefault();
+
+        // Observable property to enable/disable send functionality
+        [ObservableProperty]
+        private bool canSendMessage = false;
+
+        // Observable properties for status text and color
+        [ObservableProperty]
+        private string statusText = "● No agents selected - please select at least one agent";
+
+        [ObservableProperty]
+        private string statusColor = "#ea4335";
+
+
 
         [ObservableProperty]
         private ChatAgent? currentChatAgent;
@@ -47,6 +67,8 @@
 
         public event Action? ScrollToBottomRequested;
 
+
+
         public ChatViewModel() : this(null)
         {
         }
@@ -55,6 +77,9 @@
         {
             this._documentManagementViewModel = documentManagementViewModel ?? new DocumentManagementViewModel();
             this._chatHistory = new ChatHistory();
+            this._chatAgentFactory = new ChatAgentFactory();
+
+
 
             this.InitializeAsync();
         }
@@ -87,8 +112,13 @@
 
                 if (this.AvailableAgents.Any())
                 {
-                    this.SelectedAgent = this.AvailableAgents.First();
-                    this.UpdateCurrentAgent();
+                    AgentDefinition firstAgent = this.AvailableAgents.First();
+                    firstAgent.IsSelected = true;
+                    this.SelectedAgents.Add(firstAgent);
+                    System.Diagnostics.Debug.WriteLine($"LoadAgentsAsync: Added first agent '{firstAgent.Name}', SelectedAgents count: {this.SelectedAgents.Count}");
+                    this.UpdateCurrentAgents();
+                    this.UpdateCanSendMessage();
+                    this.UpdateStatus();
                 }
             }
             catch (Exception ex)
@@ -108,35 +138,33 @@
             }
         }
 
-        partial void OnSelectedAgentChanged(AgentDefinition? value)
+        partial void OnSelectedAgentsChanged(ObservableCollection<AgentDefinition> value)
         {
-            if (value != null)
+            if (value.Any())
             {
-                UpdateCurrentAgent();
+                UpdateCurrentAgents();
             }
+            UpdateCanSendMessage();
+            UpdateStatus();
         }
 
-        private void UpdateCurrentAgent()
+        private void UpdateCurrentAgents()
         {
-            if (this.SelectedAgent == null)
+            if (!this.SelectedAgents.Any())
             {
                 return;
             }
 
             try
             {
-                this.CurrentChatAgent = ChatAgentFactory.CreateAgent(
-                    this.SelectedAgent.Name,
-                    this.SelectedAgent.Description,
-                    this.SelectedAgent.InstructionsPath,
-                    this.SelectedAgent.PromptyPath
-                );
+                // Update orchestration state and prepare for multi-agent processing
+                string agentNames = string.Join(", ", this.SelectedAgents.Select(a => a.Name));
 
                 if (this.Messages.Any())
                 {
                     MessageResult switchMessage = new MessageResult(
                         "🤖",
-                        $"Switched to {this.SelectedAgent.Name}. How can I help you?",
+                        $"Orchestration ready with agents: {agentNames}. How can I help you?",
                         DateTime.Now,
                         false
                     );
@@ -146,9 +174,10 @@
             }
             catch (Exception ex)
             {
+                string agentNames = string.Join(", ", this.SelectedAgents.Select(a => a.Name));
                 MessageResult errorMessage = new MessageResult(
                     "❌",
-                    $"Failed to load agent '{this.SelectedAgent.Name}': {ex.Message}",
+                    $"Failed to setup orchestration with agents '{agentNames}': {ex.Message}",
                     DateTime.Now,
                     false
                 );
@@ -157,10 +186,58 @@
             }
         }
 
+        private void UpdateCanSendMessage()
+        {
+            bool newValue = !string.IsNullOrWhiteSpace(this.MessageText) && this.SelectedAgents.Any() && !this.IsOrchestrationRunning;
+            if (this.CanSendMessage != newValue)
+            {
+                this.CanSendMessage = newValue;
+                System.Diagnostics.Debug.WriteLine($"CanSendMessage updated to: {newValue} (MessageText: '{this.MessageText}', SelectedAgents: {this.SelectedAgents.Count}, IsOrchestrationRunning: {this.IsOrchestrationRunning})");
+            }
+        }
+
+        private void UpdateStatus()
+        {
+            if (this.SelectedAgents.Count == 0)
+            {
+                this.StatusText = "● No agents selected - please select at least one agent";
+                this.StatusColor = "#ea4335";
+            }
+            else if (string.IsNullOrWhiteSpace(this.MessageText))
+            {
+                this.StatusText = $"● {this.SelectedAgents.Count} agent(s) selected - type a message to send";
+                this.StatusColor = "#f4b400"; // Yellow for waiting for input
+            }
+            else if (this.IsOrchestrationRunning)
+            {
+                this.StatusText = $"● {this.SelectedAgents.Count} agent(s) selected - processing...";
+                this.StatusColor = "#4285f4"; // Blue for processing
+            }
+            else
+            {
+                this.StatusText = $"● {this.SelectedAgents.Count} agent(s) selected - ready to send";
+                this.StatusColor = "#34a853"; // Green for ready
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"Status updated: {this.StatusText}, Color: {this.StatusColor}, CanSendMessage: {this.CanSendMessage}");
+        }
+
+        partial void OnMessageTextChanged(string value)
+        {
+            this.UpdateCanSendMessage();
+            this.UpdateStatus();
+        }
+
+        partial void OnIsOrchestrationRunningChanged(bool value)
+        {
+            this.UpdateCanSendMessage();
+            this.UpdateStatus();
+        }
+
         [RelayCommand]
         private async Task SendMessage()
         {
-            if (string.IsNullOrWhiteSpace(this.MessageText) || this.CurrentChatAgent == null)
+            if (string.IsNullOrWhiteSpace(this.MessageText) || !this.SelectedAgents.Any())
             {
                 return;
             }
@@ -182,6 +259,7 @@
             ScrollToBottomRequested?.Invoke();
 
             this.IsTyping = true;
+            this.IsOrchestrationRunning = true;
             ScrollToBottomRequested?.Invoke();
 
             try
@@ -197,15 +275,66 @@
                 StringBuilder responseBuilder = new StringBuilder();
                 Dictionary<string, string> kernelArgs = this.GetKernelArgumentsDictionary();
 
-                await foreach (string chunk in this.CurrentChatAgent.InvokeStreamingAsyncInvokeAsync(messageWithContext, this._chatHistory, kernelArgs))
-                {
-                    responseBuilder.Append(chunk);
-                    botMessage.Content = responseBuilder.ToString();
+                // Create orchestration with selected agents
+                Microsoft.SemanticKernel.Agents.Orchestration.Sequential.SequentialOrchestration orchestration = await this._chatAgentFactory.CreateOrchestration(this.SelectedAgents);
 
-                    if (responseBuilder.Length % 50 == 0)
+                // Start runtime and execute orchestration
+                await this._chatAgentFactory.StartRuntimeAsync();
+
+                try
+                {
+                    await foreach (string chunk in this._chatAgentFactory.ExecuteOrchestrationStreamingAsync(
+                        orchestration,
+                        messageWithContext,
+                        this._chatHistory,
+                        kernelArgs))
                     {
-                        ScrollToBottomRequested?.Invoke();
+                        responseBuilder.Append(chunk);
+                        botMessage.Content = responseBuilder.ToString();
+
+                        if (responseBuilder.Length % 50 == 0)
+                        {
+                            ScrollToBottomRequested?.Invoke();
+                        }
                     }
+                }
+                catch (Exception)
+                {
+                    // Fallback to single agent if orchestration fails
+                    if (this.SelectedAgents.Count() > 1)
+                    {
+                        botMessage.Content = $"Orchestration failed, falling back to single agent processing...\n\n";
+                        ScrollToBottomRequested?.Invoke();
+
+                        // Use the first selected agent as fallback
+                        ChatAgent fallbackAgent = ChatAgentFactory.CreateAgent(
+                            this.SelectedAgents.First().Name,
+                            this.SelectedAgents.First().Description,
+                            this.SelectedAgents.First().InstructionsPath,
+                            this.SelectedAgents.First().PromptyPath
+                        );
+
+                        await foreach (string chunk in fallbackAgent.InvokeStreamingAsyncInvokeAsync(messageWithContext, this._chatHistory, kernelArgs))
+                        {
+                            responseBuilder.Append(chunk);
+                            botMessage.Content = responseBuilder.ToString();
+
+                            if (responseBuilder.Length % 50 == 0)
+                            {
+                                ScrollToBottomRequested?.Invoke();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // No fallback available, let the outer catch handle it
+                        throw; // Re-throw the original exception
+                    }
+                }
+                finally
+                {
+                    // Ensure runtime is stopped
+                    await this._chatAgentFactory.StopRuntimeAsync();
                 }
 
                 this._chatHistory.AddAssistantMessage(botMessage.Content);
@@ -214,7 +343,7 @@
             {
                 MessageResult errorMessage = new MessageResult(
                     "❌",
-                    $"Error: {ex.Message}",
+                    $"Orchestration Error: {ex.Message}",
                     DateTime.Now,
                     false
                 );
@@ -223,6 +352,7 @@
             finally
             {
                 this.IsTyping = false;
+                this.IsOrchestrationRunning = false;
                 ScrollToBottomRequested?.Invoke();
             }
         }
@@ -388,6 +518,41 @@
         private void DeleteMessage(MessageResult message)
         {
             this.Messages.Remove(message);
+        }
+
+        // Handle agent selection changes through property binding
+        public void OnAgentSelectionChanged(AgentDefinition agent)
+        {
+            System.Diagnostics.Debug.WriteLine($"OnAgentSelectionChanged called for agent: {agent.Name}, IsSelected: {agent.IsSelected}");
+            
+            if (agent.IsSelected)
+            {
+                if (!this.SelectedAgents.Contains(agent))
+                {
+                    this.SelectedAgents.Add(agent);
+                    System.Diagnostics.Debug.WriteLine($"Added agent: {agent.Name}, Total selected: {this.SelectedAgents.Count}");
+                }
+            }
+            else
+            {
+                this.SelectedAgents.Remove(agent);
+                System.Diagnostics.Debug.WriteLine($"Removed agent: {agent.Name}, Total selected: {this.SelectedAgents.Count}");
+            }
+            this.UpdateCanSendMessage();
+            this.UpdateStatus();
+        }
+
+        public void RemoveAgentSelection(AgentDefinition? agent)
+        {
+            if (agent == null)
+            {
+                return;
+            }
+
+            this.SelectedAgents.Remove(agent);
+            agent.IsSelected = false;
+            this.UpdateCanSendMessage();
+            this.UpdateStatus();
         }
     }
 }

@@ -15,7 +15,7 @@
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
 
-	<Grid>
+	<Grid IsEnabled="True">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="400"/>
 			<ColumnDefinition Width="*"/>
@@ -25,7 +25,7 @@
 		<views:DocumentManagementView Grid.Column="0" DataContext="{Binding DocumentManagementViewModel}"/>
 
 		<!-- Main Chat Area -->
-		<Grid Grid.Column="1">
+		<Grid Grid.Column="1" IsEnabled="True">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="*"/>
@@ -33,7 +33,7 @@
 			</Grid.RowDefinitions>
 
 			<!-- Chat Header Component -->
-			<components:ChatHeaderComponent Grid.Row="0" DataContext="{Binding ChatViewModel}"/>
+			<components:ChatHeaderComponent Grid.Row="0" DataContext="{Binding ChatViewModel}" IsEnabled="True"/>
 
 			<!-- Chat Messages Component -->
 			<components:ChatMessagesComponent Grid.Row="1" DataContext="{Binding ChatViewModel}"/>

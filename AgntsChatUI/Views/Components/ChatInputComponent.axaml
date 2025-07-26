@@ -45,7 +45,9 @@
 
 				<Button Grid.Column="3"
                         Classes="SendButton"
-                        Command="{Binding SendMessageCommand}">
+                        Command="{Binding SendMessageCommand}"
+                        IsEnabled="{Binding CanSendMessage}"
+                        ToolTip.Tip="{Binding CanSendMessage, StringFormat='Send button enabled: {0}'}">
 					<Path Data="M2,21L23,12L2,3V10L17,12L2,14V21Z" Fill="White" Stretch="Uniform" Width="20" Height="20"/>
 				</Button>
 			</Grid>
