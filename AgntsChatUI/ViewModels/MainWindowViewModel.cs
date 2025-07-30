@@ -1,6 +1,5 @@
 ﻿namespace AgntsChatUI.ViewModels
 {
-    using AgntsChatUI.Models;
     using AgntsChatUI.Services;
 
     public partial class MainWindowViewModel : ViewModelBase
@@ -16,19 +15,19 @@
             set => this.SetProperty(ref this._isCommandPaletteVisible, value);
         }
 
-        public MainWindowViewModel(IAgentService agentService, IFileTemplateService fileTemplateService, 
+        public MainWindowViewModel(IAgentService agentService, IFileTemplateService fileTemplateService,
             AgentManagementViewModel agentManagementViewModel, DataSourceManagementViewModel dataSourceManagementViewModel,
             IDataSourceManager dataSourceManager)
         {
-            DataSourceManagementViewModel = dataSourceManagementViewModel;
-            
-            ChatViewModel = new ChatViewModel(agentService, dataSourceManager);
-            
-            AgentManagementViewModel = agentManagementViewModel;
-            
-            AgentManagementViewModel.AgentChanged += OnAgentChanged;
+            this.DataSourceManagementViewModel = dataSourceManagementViewModel;
+
+            this.ChatViewModel = new ChatViewModel(agentService, dataSourceManager);
+
+            this.AgentManagementViewModel = agentManagementViewModel;
+
+            this.AgentManagementViewModel.AgentChanged += this.OnAgentChanged;
         }
-        
+
         private async void OnAgentChanged()
         {
             // Refresh the chat agents when agents are modified

@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Text.Json;
     using System.Threading.Tasks;
 
     using AgntsChatUI.AI;
@@ -15,9 +15,8 @@
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
 
-    using Microsoft.SemanticKernel.ChatCompletion;
     using Microsoft.Extensions.Logging;
-    using System.Text.Json;
+    using Microsoft.SemanticKernel.ChatCompletion;
 
     public partial class ChatViewModel : ViewModelBase
     {
@@ -291,12 +290,12 @@
             }
 
             // Structured JSON log for chat request to Aspire
-            var chatRequest = new ChatRequestLog(
+            ChatRequestLog chatRequest = new ChatRequestLog(
                 this.MessageText,
                 [.. this.SelectedAgents.Select(a => a.Name)],
                 DateTime.UtcNow
             );
-            
+
             this._logger.LogInformation("ChatRequest {@ChatRequest}", JsonSerializer.Serialize(chatRequest, new JsonSerializerOptions { WriteIndented = true }));
 
             string originalMessage = this.MessageText;
@@ -355,7 +354,7 @@
                         }
                     }
 
-                    var chatResponse = new ChatResponseLog(
+                    ChatResponseLog chatResponse = new ChatResponseLog(
                         botMessage.Content,
                         this.SelectedAgents.First().Name,
                         DateTime.UtcNow
@@ -507,7 +506,7 @@
 
         private async Task<string> BuildMessageWithDataSourceContext(string userMessage)
         {
-            IEnumerable<DataSourceResult> searchResults = await _dataSourceManager.SearchAllSourcesAsync(userMessage);
+            IEnumerable<DataSourceResult> searchResults = await this._dataSourceManager.SearchAllSourcesAsync(userMessage);
 
             if (!searchResults.Any())
             {

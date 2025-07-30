@@ -1,78 +1,89 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading.Tasks;
-using AgntsChatUI.Models;
-using System.IO;
-using System.Linq;
-
 namespace AgntsChatUI.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+
+    using AgntsChatUI.Models;
+
     // Single file data source implementation
     public class LocalFilesDataSource : IDataSource
     {
         private readonly LocalFilesConfiguration _configuration;
-        
+
         public string Name { get; }
         public string Description { get; }
         public bool IsEnabled { get; set; }
-        
+
         public LocalFilesDataSource(DataSourceDefinition definition)
         {
-            Name = definition.Name;
-            Description = definition.Description;
-            IsEnabled = definition.IsEnabled;
-            
+            this.Name = definition.Name;
+            this.Description = definition.Description;
+            this.IsEnabled = definition.IsEnabled;
+
             // Deserialize configuration from JSON
-            _configuration = JsonSerializer.Deserialize<LocalFilesConfiguration>(definition.ConfigurationJson) 
+            this._configuration = JsonSerializer.Deserialize<LocalFilesConfiguration>(definition.ConfigurationJson)
                 ?? new LocalFilesConfiguration();
         }
-        
+
         public async Task<IEnumerable<DataSourceResult>> SearchAsync(string query, Dictionary<string, object>? parameters = null)
         {
-            if (!await ValidateConfigurationAsync())
+            if (!await this.ValidateConfigurationAsync())
+            {
                 return Enumerable.Empty<DataSourceResult>();
-            
-            var results = new List<DataSourceResult>();
-            
+            }
+
+            List<DataSourceResult> results = new List<DataSourceResult>();
+
             try
             {
-                if (!IsFileSupported(_configuration.FilePath) || !IsFileSizeAcceptable(_configuration.FilePath))
-                    return Enumerable.Empty<DataSourceResult>();
-                
-                var content = await ReadFileContentAsync(_configuration.FilePath);
-                if (string.IsNullOrWhiteSpace(content))
-                    return Enumerable.Empty<DataSourceResult>();
-                
-                // Simple keyword search (case-insensitive)
-                if (content.Contains(query, StringComparison.OrdinalIgnoreCase) || 
-                    Path.GetFileNameWithoutExtension(_configuration.FilePath).Contains(query, StringComparison.OrdinalIgnoreCase))
+                if (!this.IsFileSupported(this._configuration.FilePath) || !this.IsFileSizeAcceptable(this._configuration.FilePath))
                 {
-                    results.Add(CreateDataSourceResult(_configuration.FilePath, content));
+                    return Enumerable.Empty<DataSourceResult>();
+                }
+
+                string content = await this.ReadFileContentAsync(this._configuration.FilePath);
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    return Enumerable.Empty<DataSourceResult>();
+                }
+
+                // Simple keyword search (case-insensitive)
+                if (content.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                    Path.GetFileNameWithoutExtension(this._configuration.FilePath).Contains(query, StringComparison.OrdinalIgnoreCase))
+                {
+                    results.Add(this.CreateDataSourceResult(this._configuration.FilePath, content));
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to search file '{_configuration.FilePath}': {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Failed to search file '{this._configuration.FilePath}': {ex.Message}");
             }
-            
+
             return results;
         }
-        
+
         public Task<bool> ValidateConfigurationAsync()
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(_configuration.FilePath))
+                if (string.IsNullOrWhiteSpace(this._configuration.FilePath))
+                {
                     return Task.FromResult(false);
-                
-                if (!File.Exists(_configuration.FilePath))
+                }
+
+                if (!File.Exists(this._configuration.FilePath))
+                {
                     return Task.FromResult(false);
-                
+                }
+
                 // Check if file is accessible
                 try
                 {
-                    using var stream = File.OpenRead(_configuration.FilePath);
+                    using FileStream stream = File.OpenRead(this._configuration.FilePath);
                     return Task.FromResult(true);
                 }
                 catch (UnauthorizedAccessException)
@@ -92,16 +103,16 @@ namespace AgntsChatUI.Services
 
         private bool IsFileSupported(string filePath)
         {
-            var extension = Path.GetExtension(filePath).ToLowerInvariant();
-            return _configuration.SupportedExtensions.Contains(extension);
+            string extension = Path.GetExtension(filePath).ToLowerInvariant();
+            return this._configuration.SupportedExtensions.Contains(extension);
         }
 
         private bool IsFileSizeAcceptable(string filePath)
         {
             try
             {
-                var fileInfo = new FileInfo(filePath);
-                return fileInfo.Length <= _configuration.MaxFileSizeBytes;
+                FileInfo fileInfo = new FileInfo(filePath);
+                return fileInfo.Length <= this._configuration.MaxFileSizeBytes;
             }
             catch
             {
@@ -130,7 +141,7 @@ namespace AgntsChatUI.Services
             {
                 Content = content,
                 Title = Path.GetFileName(filePath),
-                SourceName = Name,
+                SourceName = this.Name,
                 SourceType = "LocalFile",
                 Metadata = new Dictionary<string, object>
                 {

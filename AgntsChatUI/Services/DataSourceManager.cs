@@ -1,70 +1,73 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using AgntsChatUI.Models;
-using System.Linq;
-
 namespace AgntsChatUI.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+
+    using AgntsChatUI.Models;
+
     // Factory-based instantiation and search coordination across all sources
     public class DataSourceManager : IDataSourceManager
     {
         private readonly IDataSourceService _dataSourceService;
         private readonly IServiceProvider _serviceProvider;
         private readonly Dictionary<int, IDataSource> _activeDataSources = new();
-        
+
         public DataSourceManager(IDataSourceService dataSourceService, IServiceProvider serviceProvider)
         {
-            _dataSourceService = dataSourceService ?? throw new ArgumentNullException(nameof(dataSourceService));
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            this._dataSourceService = dataSourceService ?? throw new ArgumentNullException(nameof(dataSourceService));
+            this._serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
-        
+
         public async Task InitializeAsync()
         {
-            await _dataSourceService.InitializeAsync();
-            await RefreshDataSourcesAsync();
+            await this._dataSourceService.InitializeAsync();
+            await this.RefreshDataSourcesAsync();
         }
 
         public async Task<IEnumerable<DataSourceResult>> SearchAllSourcesAsync(string query, Dictionary<string, object>? parameters = null)
         {
             if (string.IsNullOrWhiteSpace(query))
-                return Enumerable.Empty<DataSourceResult>();
-            
-            var allResults = new List<DataSourceResult>();
-            var searchTasks = new List<Task<IEnumerable<DataSourceResult>>>();
-            
-            foreach (var dataSource in _activeDataSources.Values)
             {
-                searchTasks.Add(SearchSingleSourceAsync(dataSource, query, parameters));
+                return Enumerable.Empty<DataSourceResult>();
             }
-            
-            var results = await Task.WhenAll(searchTasks);
-            foreach (var result in results)
+
+            List<DataSourceResult> allResults = new List<DataSourceResult>();
+            List<Task<IEnumerable<DataSourceResult>>> searchTasks = new List<Task<IEnumerable<DataSourceResult>>>();
+
+            foreach (IDataSource dataSource in this._activeDataSources.Values)
+            {
+                searchTasks.Add(this.SearchSingleSourceAsync(dataSource, query, parameters));
+            }
+
+            IEnumerable<DataSourceResult>[] results = await Task.WhenAll(searchTasks);
+            foreach (IEnumerable<DataSourceResult>? result in results)
             {
                 allResults.AddRange(result);
             }
-            
+
             return allResults;
         }
 
         public Task<IEnumerable<IDataSource>> GetActiveDataSourcesAsync()
         {
-            return Task.FromResult(_activeDataSources.Values.AsEnumerable());
+            return Task.FromResult(this._activeDataSources.Values.AsEnumerable());
         }
 
         public async Task RefreshDataSourcesAsync()
         {
-            _activeDataSources.Clear();
-            
-            var definitions = await _dataSourceService.GetAllDataSourcesAsync();
-            foreach (var definition in definitions.Where(d => d.IsEnabled))
+            this._activeDataSources.Clear();
+
+            IEnumerable<DataSourceDefinition> definitions = await this._dataSourceService.GetAllDataSourcesAsync();
+            foreach (DataSourceDefinition? definition in definitions.Where(d => d.IsEnabled))
             {
                 try
                 {
-                    var dataSource = DataSourceFactory.CreateDataSource(definition, _serviceProvider);
+                    IDataSource dataSource = DataSourceFactory.CreateDataSource(definition, this._serviceProvider);
                     if (await dataSource.ValidateConfigurationAsync())
                     {
-                        _activeDataSources[definition.Id ?? 0] = dataSource;
+                        this._activeDataSources[definition.Id ?? 0] = dataSource;
                     }
                 }
                 catch (Exception ex)
