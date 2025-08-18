@@ -10,7 +10,7 @@ model:
     azure_endpoint: ${env:AZURE_OPENAI_ENDPOINT}
     azure_deployment: <your-deployment>
   parameters:
-    max_tokens: 3000
+    max_completion_tokens: 3000
 sample:
   message: 
 ---

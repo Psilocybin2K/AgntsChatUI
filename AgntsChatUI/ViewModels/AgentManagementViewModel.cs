@@ -516,11 +516,9 @@ model:
   api: chat
   configuration:
     type: azure_openai
-    azure_deployment: ""gpt-4o""
-    azure_endpoint: ${{env:AOAI_ENDPOINT}}
-    api_key: ${{env:AOAI_API_KEY}}
+    azure_deployment: ""gpt-5-nano""
   parameters:
-    max_tokens: 4000
+    max_completion_tokens: 4000
 sample: |
   User: Hello, I need help with {desc.ToLower()}.
   Assistant: I'm here to help you with {desc.ToLower()}. What specific assistance do you need?

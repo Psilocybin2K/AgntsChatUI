@@ -31,10 +31,11 @@
                 .ConfigureServices((context, services) =>
                 {
                     // Configure Azure OpenAI services
-                    // string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
-                    string apiKey = GetRequiredEnvironmentVariable("OPENAI_API_KEY");
+                    string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
+                    string apiKey = GetRequiredEnvironmentVariable("AOAI_API_KEY");
 
-                    services.AddOpenAIChatCompletion("gpt-4.1-nano", apiKey);
+                    // services.AddOpenAIChatCompletion("gpt-5-nano", apiKey);
+                    services.AddAzureOpenAIChatCompletion("gpt-5-nano", endpoint, apiKey);
                     services.AddSingleton((s) => new Kernel(s));
                     services.AddSingleton<InProcessRuntime>();
                 });
@@ -123,14 +124,16 @@
         private static ChatCompletionAgent CreateChatCompletionAgentStatic(AgentDefinition definition)
         {
             PromptTemplateConfig templateConfig = KernelFunctionPrompty.ToPromptTemplateConfig(
-                File.ReadAllText(definition.PromptyPath));
+                File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), definition.PromptyPath)));
 
-            string instructions = File.ReadAllText(definition.InstructionsPath);
+            string instructions = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), definition.InstructionsPath));
             // string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
-            string apiKey = GetRequiredEnvironmentVariable("OPENAI_API_KEY");
+            string endpoint = GetRequiredEnvironmentVariable("AOAI_ENDPOINT");
+            string apiKey = GetRequiredEnvironmentVariable("AOAI_API_KEY");
 
             Kernel kernel = Kernel.CreateBuilder()
-                .AddOpenAIChatCompletion("gpt-4.1-nano", apiKey)
+                // .AddOpenAIChatCompletion("gpt-5-nano", apiKey)
+                .AddAzureOpenAIChatCompletion("gpt-5-nano", endpoint, apiKey)
                 .Build();
 
             return new ChatCompletionAgent(templateConfig, new LiquidPromptTemplateFactory())

@@ -24,7 +24,7 @@
 							<!-- Message for others (AI) -->
 							<StackPanel IsVisible="{Binding !IsSent}" Orientation="Horizontal" Spacing="12" MaxWidth="600" HorizontalAlignment="Left">
 								<Border Width="32" Height="32" CornerRadius="16" Background="#4285f4" VerticalAlignment="Top">
-									<TextBlock Text="🤖" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									<TextBlock Text="🤖" Classes="BodySmall" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 								</Border>
 								<StackPanel MaxWidth="500">
 									<!-- Edit Mode for others -->
@@ -68,7 +68,7 @@
 												</MenuItem>
 											</MenuFlyout>
 										</Border.ContextFlyout>
-										<TextBlock Text="{Binding Content}" FontSize="14" Foreground="#202124" TextWrapping="Wrap"/>
+										<TextBlock Text="{Binding Content}" Classes="BodyMedium" Foreground="#202124" TextWrapping="Wrap"/>
 									</Border>
 
 									<!-- File attachment for others -->
@@ -83,8 +83,8 @@
 												<Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" Fill="White" Stretch="Uniform" Width="20" Height="20"/>
 											</Border>
 											<StackPanel Grid.Column="1">
-												<TextBlock Text="{Binding FileName}" FontWeight="Medium" Foreground="#202124" FontSize="14"/>
-												<TextBlock Text="{Binding FileSize}" FontSize="12" Foreground="#5f6368"/>
+												<TextBlock Text="{Binding FileName}" FontWeight="Medium" Foreground="#202124" Classes="BodyMedium"/>
+												<TextBlock Text="{Binding FileSize}" Classes="Caption" Foreground="#5f6368"/>
 											</StackPanel>
 											<Button Grid.Column="2"
                                                     Classes="PrimaryButton"
@@ -92,7 +92,7 @@
 										</Grid>
 									</Border>
 
-									<TextBlock Text="{Binding Time, StringFormat='h:mm tt'}" FontSize="11" Foreground="#5f6368" Margin="0,4,0,0"/>
+									<TextBlock Text="{Binding Time, StringFormat='h:mm tt'}" Classes="Caption" Foreground="#5f6368" Margin="0,4,0,0"/>
 								</StackPanel>
 							</StackPanel>
 
@@ -140,13 +140,13 @@
 												</MenuItem>
 											</MenuFlyout>
 										</Border.ContextFlyout>
-										<TextBlock Text="{Binding Content}" FontSize="14" Foreground="White" TextWrapping="Wrap"/>
+										<TextBlock Text="{Binding Content}" Classes="BodyMedium" Foreground="White" TextWrapping="Wrap"/>
 									</Border>
 
-									<TextBlock Text="{Binding Time, StringFormat='h:mm tt'}" FontSize="11" Foreground="#5f6368" Margin="0,4,0,0" HorizontalAlignment="Right"/>
+									<TextBlock Text="{Binding Time, StringFormat='h:mm tt'}" Classes="Caption" Foreground="#5f6368" Margin="0,4,0,0" HorizontalAlignment="Right"/>
 								</StackPanel>
 								<Border Width="32" Height="32" CornerRadius="16" Background="#34a853" VerticalAlignment="Top">
-									<TextBlock Text="{Binding Avatar}" FontSize="12" FontWeight="Medium" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									<TextBlock Text="{Binding Avatar}" Classes="Caption" FontWeight="Medium" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 								</Border>
 							</StackPanel>
 						</Grid>
@@ -157,7 +157,7 @@
 			<!-- Typing Indicator -->
 			<StackPanel IsVisible="{Binding IsTyping}" Orientation="Horizontal" Spacing="12" MaxWidth="600" HorizontalAlignment="Left" Margin="0,0,0,16">
 				<Border Width="32" Height="32" CornerRadius="16" Background="#4285f4" VerticalAlignment="Top">
-					<TextBlock Text="🤖" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<TextBlock Text="🤖" Classes="BodySmall" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				</Border>
 				<Border Background="#f1f3f4" Padding="12,16" CornerRadius="18">
 					<StackPanel Orientation="Horizontal" Spacing="4">

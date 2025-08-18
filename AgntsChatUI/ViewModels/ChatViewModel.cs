@@ -17,6 +17,7 @@
 
     using Microsoft.Extensions.Logging;
     using Microsoft.SemanticKernel.ChatCompletion;
+    using Avalonia.Threading;
 
     public partial class ChatViewModel : ViewModelBase
     {
@@ -37,6 +38,9 @@
 
         [ObservableProperty]
         private bool isKernelConfigurationOpen;
+
+        [ObservableProperty]
+        private bool isAgentPanelOpen = false;
 
         [ObservableProperty]
         private ObservableCollection<AgentDefinition> availableAgents = [];
@@ -282,25 +286,21 @@
         }
 
         [RelayCommand]
-        private async Task SendMessage()
+        private void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(this.MessageText) || !this.SelectedAgents.Any())
             {
                 return;
             }
 
-            // Structured JSON log for chat request to Aspire
-            ChatRequestLog chatRequest = new ChatRequestLog(
-                this.MessageText,
-                [.. this.SelectedAgents.Select(a => a.Name)],
-                DateTime.UtcNow
-            );
-
-            this._logger.LogInformation("ChatRequest {@ChatRequest}", JsonSerializer.Serialize(chatRequest, new JsonSerializerOptions { WriteIndented = true }));
-
+            // Capture UI state on the main thread
             string originalMessage = this.MessageText;
-            string messageWithContext = await this.BuildMessageWithDataSourceContext(originalMessage);
+            var selectedAgents = this.SelectedAgents.ToList();
 
+            // Clear message text immediately on UI thread
+            this.MessageText = string.Empty;
+
+            // Create and add user message on UI thread
             MessageResult userMessage = new MessageResult(
                 "ME",
                 originalMessage,
@@ -309,115 +309,157 @@
             );
 
             this.Messages.Add(userMessage);
-            this._chatHistory.AddUserMessage(messageWithContext);
-            this.MessageText = string.Empty;
-
             ScrollToBottomRequested?.Invoke();
 
+            // Set loading states on UI thread
             this.IsTyping = true;
             this.IsOrchestrationRunning = true;
             ScrollToBottomRequested?.Invoke();
 
-            try
+            // Run the heavy work on background thread
+            _ = Task.Run(async () =>
             {
-                MessageResult botMessage = new MessageResult(
-                    "🤖",
-                    "",
-                    DateTime.Now,
-                    false
-                );
-                this.Messages.Add(botMessage);
-
-                StringBuilder responseBuilder = new StringBuilder();
-                Dictionary<string, string> kernelArgs = this.GetKernelArgumentsDictionary();
-
-                // Create orchestration with selected agents
-                Microsoft.SemanticKernel.Agents.Orchestration.Sequential.SequentialOrchestration orchestration = await this._chatAgentFactory.CreateOrchestration(this.SelectedAgents);
-
-                // Start runtime and execute orchestration
-                await this._chatAgentFactory.StartRuntimeAsync();
-
                 try
                 {
-                    await foreach (string chunk in this._chatAgentFactory.ExecuteOrchestrationStreamingAsync(
-                        orchestration,
-                        messageWithContext,
-                        this._chatHistory,
-                        kernelArgs))
-                    {
-                        responseBuilder.Append(chunk);
-                        botMessage.Content = responseBuilder.ToString();
-
-                        if (responseBuilder.Length % 50 == 0)
-                        {
-                            ScrollToBottomRequested?.Invoke();
-                        }
-                    }
-
-                    ChatResponseLog chatResponse = new ChatResponseLog(
-                        botMessage.Content,
-                        this.SelectedAgents.First().Name,
+                    // Structured JSON log for chat request to Aspire
+                    ChatRequestLog chatRequest = new ChatRequestLog(
+                        originalMessage,
+                        [.. selectedAgents.Select(a => a.Name)],
                         DateTime.UtcNow
                     );
-                    this._logger.LogInformation("ChatResponse {@ChatResponse}", JsonSerializer.Serialize(chatResponse, new JsonSerializerOptions { WriteIndented = true }));
-                }
-                catch (Exception)
-                {
-                    // Fallback to single agent if orchestration fails
-                    if (this.SelectedAgents.Count() > 1)
+
+                    this._logger.LogInformation("ChatRequest {@ChatRequest}", JsonSerializer.Serialize(chatRequest, new JsonSerializerOptions { WriteIndented = true }));
+
+                    string messageWithContext = await this.BuildMessageWithDataSourceContext(originalMessage);
+
+                    // Add to chat history
+                    this._chatHistory.AddUserMessage(messageWithContext);
+
+                    // Create bot message on UI thread
+                    MessageResult botMessage = new MessageResult(
+                        "🤖",
+                        "",
+                        DateTime.Now,
+                        false
+                    );
+
+                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        botMessage.Content = $"Orchestration failed, falling back to single agent processing...\n\n";
+                        this.Messages.Add(botMessage);
                         ScrollToBottomRequested?.Invoke();
+                    });
 
-                        // Use the first selected agent as fallback
-                        ChatAgent fallbackAgent = ChatAgentFactory.CreateAgent(
-                            this.SelectedAgents.First().Name,
-                            this.SelectedAgents.First().Description,
-                            this.SelectedAgents.First().InstructionsPath,
-                            this.SelectedAgents.First().PromptyPath
-                        );
+                    StringBuilder responseBuilder = new StringBuilder();
+                    Dictionary<string, string> kernelArgs = this.GetKernelArgumentsDictionary();
 
-                        await foreach (string chunk in fallbackAgent.InvokeStreamingAsyncInvokeAsync(messageWithContext, this._chatHistory, kernelArgs))
+                    // Create orchestration with selected agents
+                    Microsoft.SemanticKernel.Agents.Orchestration.Sequential.SequentialOrchestration orchestration = await this._chatAgentFactory.CreateOrchestration(selectedAgents);
+
+                    // Start runtime and execute orchestration
+                    await this._chatAgentFactory.StartRuntimeAsync();
+
+                    try
+                    {
+                        await foreach (string chunk in this._chatAgentFactory.ExecuteOrchestrationStreamingAsync(
+                            orchestration,
+                            messageWithContext,
+                            this._chatHistory,
+                            kernelArgs))
                         {
                             responseBuilder.Append(chunk);
-                            botMessage.Content = responseBuilder.ToString();
-
-                            if (responseBuilder.Length % 50 == 0)
+                            
+                            // Update UI on main thread
+                            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                             {
+                                botMessage.Content = responseBuilder.ToString();
+                                
+                                if (responseBuilder.Length % 50 == 0)
+                                {
+                                    ScrollToBottomRequested?.Invoke();
+                                }
+                            });
+                        }
+
+                        ChatResponseLog chatResponse = new ChatResponseLog(
+                            botMessage.Content,
+                            selectedAgents.First().Name,
+                            DateTime.UtcNow
+                        );
+                        this._logger.LogInformation("ChatResponse {@ChatResponse}", JsonSerializer.Serialize(chatResponse, new JsonSerializerOptions { WriteIndented = true }));
+                    }
+                    catch (Exception)
+                    {
+                        // Fallback to single agent if orchestration fails
+                        if (selectedAgents.Count() > 1)
+                        {
+                            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                botMessage.Content = $"Orchestration failed, falling back to single agent processing...\n\n";
                                 ScrollToBottomRequested?.Invoke();
+                            });
+
+                            // Use the first selected agent as fallback
+                            ChatAgent fallbackAgent = ChatAgentFactory.CreateAgent(
+                                selectedAgents.First().Name,
+                                selectedAgents.First().Description,
+                                selectedAgents.First().InstructionsPath,
+                                selectedAgents.First().PromptyPath
+                            );
+
+                            await foreach (string chunk in fallbackAgent.InvokeStreamingAsyncInvokeAsync(messageWithContext, this._chatHistory, kernelArgs))
+                            {
+                                responseBuilder.Append(chunk);
+                                
+                                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                                {
+                                    botMessage.Content = responseBuilder.ToString();
+
+                                    if (responseBuilder.Length % 50 == 0)
+                                    {
+                                        ScrollToBottomRequested?.Invoke();
+                                    }
+                                });
                             }
                         }
+                        else
+                        {
+                            // No fallback available, let the outer catch handle it
+                            throw; // Re-throw the original exception
+                        }
                     }
-                    else
+                    finally
                     {
-                        // No fallback available, let the outer catch handle it
-                        throw; // Re-throw the original exception
+                        // Ensure runtime is stopped
+                        await this._chatAgentFactory.StopRuntimeAsync();
                     }
+
+                    this._chatHistory.AddAssistantMessage(botMessage.Content);
+                }
+                catch (Exception ex)
+                {
+                    // Handle errors on UI thread
+                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        MessageResult errorMessage = new MessageResult(
+                            "❌",
+                            $"Orchestration Error: {ex.Message}",
+                            DateTime.Now,
+                            false
+                        );
+                        this.Messages.Add(errorMessage);
+                    });
                 }
                 finally
                 {
-                    // Ensure runtime is stopped
-                    await this._chatAgentFactory.StopRuntimeAsync();
+                    // Reset loading states on UI thread
+                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        this.IsTyping = false;
+                        this.IsOrchestrationRunning = false;
+                        ScrollToBottomRequested?.Invoke();
+                    });
                 }
-
-                this._chatHistory.AddAssistantMessage(botMessage.Content);
-            }
-            catch (Exception ex)
-            {
-                MessageResult errorMessage = new MessageResult(
-                    "❌",
-                    $"Orchestration Error: {ex.Message}",
-                    DateTime.Now,
-                    false
-                );
-                this.Messages.Add(errorMessage);
-            }
-            finally
-            {
-                this.IsTyping = false;
-                this.IsOrchestrationRunning = false;
-                ScrollToBottomRequested?.Invoke();
-            }
+            });
         }
 
         private Dictionary<string, string> GetKernelArgumentsDictionary()
@@ -506,26 +548,35 @@
 
         private async Task<string> BuildMessageWithDataSourceContext(string userMessage)
         {
-            IEnumerable<DataSourceResult> searchResults = await this._dataSourceManager.SearchAllSourcesAsync(userMessage);
-
-            if (!searchResults.Any())
+            try
             {
-                return userMessage;
-            }
+                IEnumerable<DataSourceResult> searchResults = await this._dataSourceManager.SearchAllSourcesAsync(userMessage);
 
-            StringBuilder messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine(userMessage);
-            messageBuilder.AppendLine();
-            messageBuilder.AppendLine("--- DATA SOURCE CONTEXT ---");
+                if (!searchResults.Any())
+                {
+                    return userMessage;
+                }
 
-            foreach (DataSourceResult result in searchResults)
-            {
-                messageBuilder.AppendLine($"--- {result.Title} ({result.SourceName}) ---");
-                messageBuilder.AppendLine(result.Content ?? string.Empty);
+                StringBuilder messageBuilder = new StringBuilder();
+                messageBuilder.AppendLine(userMessage);
                 messageBuilder.AppendLine();
-            }
+                messageBuilder.AppendLine("--- DATA SOURCE CONTEXT ---");
 
-            return messageBuilder.ToString();
+                foreach (DataSourceResult result in searchResults)
+                {
+                    messageBuilder.AppendLine($"--- {result.Title} ({result.SourceName}) ---");
+                    messageBuilder.AppendLine(result.Content ?? string.Empty);
+                    messageBuilder.AppendLine();
+                }
+
+                return messageBuilder.ToString();
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't fail the entire message sending
+                this._logger.LogError(ex, "Error building message with data source context");
+                return userMessage; // Return original message without context
+            }
         }
 
         [RelayCommand]
@@ -550,6 +601,48 @@
         private void DeleteMessage(MessageResult message)
         {
             this.Messages.Remove(message);
+        }
+
+        [RelayCommand]
+        private void ToggleAgentPanel()
+        {
+            this.IsAgentPanelOpen = !this.IsAgentPanelOpen;
+        }
+
+        [RelayCommand]
+        private void QuickAgentSwitch(AgentDefinition agent)
+        {
+            if (agent != null)
+            {
+                // Clear current selection and select the new agent
+                this.SelectedAgents.Clear();
+                foreach (var availableAgent in this.AvailableAgents)
+                {
+                    availableAgent.IsSelected = false;
+                }
+                
+                agent.IsSelected = true;
+                this.SelectedAgents.Add(agent);
+                this.OnAgentSelectionChanged(agent);
+            }
+        }
+
+        [RelayCommand]
+        private void RemoveAgentFromSelection(AgentDefinition agent)
+        {
+            this.RemoveAgentSelection(agent);
+        }
+
+        [RelayCommand]
+        private void ClearAgentSelection()
+        {
+            this.SelectedAgents.Clear();
+            foreach (var agent in this.AvailableAgents)
+            {
+                agent.IsSelected = false;
+            }
+            this.UpdateCanSendMessage();
+            this.UpdateStatus();
         }
 
         // Handle agent selection changes through property binding

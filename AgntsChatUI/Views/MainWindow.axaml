@@ -15,28 +15,23 @@
 
 	<Grid IsEnabled="True" x:Name="MainGrid">
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="350"/> <!-- Agent Management -->
-			<ColumnDefinition Width="380"/> <!-- Data Source Management (was Document Management) -->
+			<ColumnDefinition Width="380"/> <!-- Data Source Management -->
 			<ColumnDefinition Width="*"/>   <!-- Chat Area -->
 		</Grid.ColumnDefinitions>
 
-		<!-- Agent Management Component -->
-		<views:AgentManagementView Grid.Column="0" DataContext="{Binding AgentManagementViewModel}"/>
-
-		<!-- REPLACE: Document Management with Data Source Management -->
-		<!-- OLD: <views:DocumentManagementView Grid.Column="1" DataContext="{Binding DocumentManagementViewModel}"/> -->
-		<views:DataSourceManagementView Grid.Column="1" DataContext="{Binding DataSourceManagementViewModel}"/>
+		<!-- Data Source Management -->
+		<views:DataSourceManagementView Grid.Column="0" DataContext="{Binding DataSourceManagementViewModel}"/>
 
 		<!-- Main Chat Area -->
-		<Grid Grid.Column="2" IsEnabled="True">
+		<Grid Grid.Column="1" IsEnabled="True">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="*"/>
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 
-			<!-- Chat Header Component -->
-			<components:ChatHeaderComponent Grid.Row="0" DataContext="{Binding ChatViewModel}" IsEnabled="True"/>
+			<!-- Compact Agent Selector Component -->
+			<components:CompactAgentSelector Grid.Row="0" DataContext="{Binding ChatViewModel}" IsEnabled="True"/>
 
 			<!-- Chat Messages Component -->
 			<components:ChatMessagesComponent Grid.Row="1" DataContext="{Binding ChatViewModel}"/>
@@ -45,13 +40,16 @@
 			<components:ChatInputComponent Grid.Row="2" DataContext="{Binding ChatViewModel}"/>
 		</Grid>
 
-		<!-- Agent Edit Dialog Overlay - Moved from AgentManagementView -->
-		<components:AgentEditDialogComponent Grid.ColumnSpan="3" DataContext="{Binding AgentManagementViewModel}"/>
+		<!-- Agent Edit Dialog Overlay -->
+		<components:AgentEditDialogComponent Grid.ColumnSpan="2" DataContext="{Binding AgentManagementViewModel}"/>
 
 		<!-- Kernel Configuration Dialog Overlay -->
-		<components:KernelConfigurationDialogComponent Grid.ColumnSpan="3" DataContext="{Binding ChatViewModel}"/>
+		<components:KernelConfigurationDialogComponent Grid.ColumnSpan="2" DataContext="{Binding ChatViewModel}"/>
+
+		<!-- Agent Management Slide-out Panel Overlay -->
+		<components:AgentManagementPanel Grid.ColumnSpan="2"/>
 
 		<!-- Command Palette Overlay (centered at top of window, overlays all columns) -->
-		<components:CommandPaletteComponent x:Name="CommandPalette" IsVisible="{Binding IsCommandPaletteVisible}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,40,0,0" Width="400" Grid.ColumnSpan="3"/>
+		<components:CommandPaletteComponent x:Name="CommandPalette" IsVisible="{Binding IsCommandPaletteVisible}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,40,0,0" Width="400" Grid.ColumnSpan="2"/>
 	</Grid>
 </Window>

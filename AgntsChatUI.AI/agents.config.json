@@ -2,31 +2,31 @@
     {
         "Name": "TestCaseGeneratorAgent",
         "Description": "Write Gherkin formatted Test Cases",
-        "InstructionsPath": "PromptTemplates\\Instructions\\TestCaseGenerator.md",
-        "PromptyPath": "PromptTemplates\\Personas\\TestCaseGenerator.prompty"
+        "InstructionsPath": "PromptTemplates/Instructions/TestCaseGenerator.md",
+        "PromptyPath": "PromptTemplates/Personas/TestCaseGenerator.prompty"
     },
     {
         "Name": "TestCaseGeneratorAgent2",
         "Description": "Write Gherkin formatted Test Cases",
-        "InstructionsPath": "PromptTemplates\\Instructions\\TestCaseGenerator.md",
-        "PromptyPath": "PromptTemplates\\Personas\\TestCaseGenerator.prompty"
+        "InstructionsPath": "PromptTemplates/Instructions/TestCaseGenerator.md",
+        "PromptyPath": "PromptTemplates/Personas/TestCaseGenerator.prompty"
     },
     {
         "Name": "TestCaseGeneratorAgent22",
         "Description": "Write Gherkin formatted Test Cases",
-        "InstructionsPath": "PromptTemplates\\Instructions\\TestCaseGenerator.md",
-        "PromptyPath": "PromptTemplates\\Personas\\TestCaseGenerator.prompty"
+        "InstructionsPath": "PromptTemplates/Instructions/TestCaseGenerator.md",
+        "PromptyPath": "PromptTemplates/Personas/TestCaseGenerator.prompty"
     },
     {
         "Name": "TestCaseGeneratorAgent23",
         "Description": "Write Gherkin formatted Test Cases",
-        "InstructionsPath": "PromptTemplates\\Instructions\\TestCaseGenerator.md",
-        "PromptyPath": "PromptTemplates\\Personas\\TestCaseGenerator.prompty"
+        "InstructionsPath": "PromptTemplates/Instructions/TestCaseGenerator.md",
+        "PromptyPath": "PromptTemplates/Personas/TestCaseGenerator.prompty"
     },
     {
         "Name": "TestCaseGeneratorAgent42",
         "Description": "Write Gherkin formatted Test Cases",
-        "InstructionsPath": "PromptTemplates\\Instructions\\TestCaseGenerator.md",
-        "PromptyPath": "PromptTemplates\\Personas\\TestCaseGenerator.prompty"
+        "InstructionsPath": "PromptTemplates/Instructions/TestCaseGenerator.md",
+        "PromptyPath": "PromptTemplates/Personas/TestCaseGenerator.prompty"
     }
 ]

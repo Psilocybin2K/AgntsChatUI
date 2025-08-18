@@ -35,11 +35,11 @@
 						</Grid.ColumnDefinitions>
 						<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
 							<Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
-								<TextBlock Text="🤖" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+								<TextBlock Text="🤖" Classes="TitleMedium" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
 							</Border>
 							<StackPanel>
-								<TextBlock Text="{Binding SelectedAgent.Name, FallbackValue='New Agent'}" FontSize="20" FontWeight="Medium" Foreground="#202124"/>
-								<TextBlock Text="Configure agent settings and behavior" FontSize="14" Foreground="#5f6368"/>
+								<TextBlock Text="{Binding SelectedAgent.Name, FallbackValue='New Agent'}" Classes="TitleMedium" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="Configure agent settings and behavior" Classes="BodySmall" Foreground="#5f6368"/>
 							</StackPanel>
 						</StackPanel>
 						<Button Grid.Column="1"
@@ -64,30 +64,27 @@
 						
 						<!-- Basic Information Section -->
 						<StackPanel Spacing="16">
-							<TextBlock Text="Basic Information" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+							<TextBlock Text="Basic Information" Classes="BodyMedium" FontWeight="Medium" Foreground="#202124"/>
 							
 							<!-- Agent Name Field -->
 							<StackPanel Spacing="6">
-								<TextBlock Text="Agent Name *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="Agent Name *" Classes="BodySmall" FontWeight="Medium" Foreground="#202124"/>
 								<TextBox Text="{Binding AgentName}"
-                                         FontSize="16"
+                                         Classes="BodyMedium"
                                          Padding="16,12"
                                          CornerRadius="8"
                                          BorderBrush="#dadce0"
                                          Background="White"
                                          Watermark="Enter agent name..."
                                          MaxLength="100"/>
-								<TextBlock Text="Required field. Maximum 100 characters." 
-                                           FontSize="12" 
-                                           Foreground="#5f6368" 
-                                           Margin="4,0,0,0"/>
+								<TextBlock Classes="Caption" Text="Required field. Maximum 100 characters." Foreground="#5f6368"/>
 							</StackPanel>
 
 							<!-- Agent Description Field -->
 							<StackPanel Spacing="6">
-								<TextBlock Text="Description *" FontSize="14" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Text="Description *" Classes="BodySmall" FontWeight="Medium" Foreground="#202124"/>
 								<TextBox Text="{Binding AgentDescription}"
-                                         FontSize="16"
+                                         Classes="BodyMedium"
                                          Padding="16,12"
                                          CornerRadius="8"
                                          BorderBrush="#dadce0"
@@ -97,23 +94,19 @@
                                          TextWrapping="Wrap"
                                          Height="80"
                                          MaxLength="500"/>
-								<TextBlock Text="Required field. Maximum 500 characters." 
-                                           FontSize="12" 
-                                           Foreground="#5f6368" 
-                                           Margin="4,0,0,0"/>
+								<TextBlock Classes="Caption" Text="Required field. Maximum 500 characters." Foreground="#5f6368"/>
 							</StackPanel>
 						</StackPanel>
 
 						<!-- Instructions Section -->
 						<StackPanel Spacing="16">
 							<StackPanel Spacing="4">
-								<TextBlock Text="Instructions" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
-								<TextBlock Text="Define the agent's behavior, guidelines, and capabilities in markdown format."
-                                           FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
+								<TextBlock Text="Instructions" Classes="BodyMedium" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Classes="BodySmall" Text="Define the agent's behavior, guidelines, and capabilities in markdown format." Foreground="#5f6368" TextWrapping="Wrap"/>
 							</StackPanel>
 							
 							<TextBox Text="{Binding AgentInstructions}"
-                                     FontSize="14"
+                                     Classes="BodySmall"
                                      Padding="16,12"
                                      CornerRadius="8"
                                      BorderBrush="#dadce0"
@@ -128,13 +121,12 @@
 						<!-- Prompty Template Section -->
 						<StackPanel Spacing="16">
 							<StackPanel Spacing="4">
-								<TextBlock Text="Prompty Template" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
-								<TextBlock Text="Define the agent's persona and system prompt in prompty format."
-                                           FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
+								<TextBlock Text="Prompty Template" Classes="BodyMedium" FontWeight="Medium" Foreground="#202124"/>
+								<TextBlock Classes="BodySmall" Text="Define the agent's persona and system prompt in prompty format." Foreground="#5f6368" TextWrapping="Wrap"/>
 							</StackPanel>
 							
 							<TextBox Text="{Binding AgentPrompty}"
-                                     FontSize="14"
+                                     Classes="BodySmall"
                                      Padding="16,12"
                                      CornerRadius="8"
                                      BorderBrush="#dadce0"
@@ -154,11 +146,8 @@
                                 CornerRadius="8"
                                 Padding="16">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<TextBlock Text="⚠️" FontSize="16" VerticalAlignment="Top"/>
-								<TextBlock Text="{Binding StatusMessage}"
-                                           FontSize="14"
-                                           Foreground="#d93025"
-                                           TextWrapping="Wrap"/>
+								<TextBlock Text="⚠️" Classes="BodyMedium" VerticalAlignment="Top"/>
+								<TextBlock Classes="BodySmall" Text="Both Instructions and Prompty Template files are required for the agent to function properly." TextWrapping="Wrap"/>
 							</StackPanel>
 						</Border>
 
@@ -170,29 +159,26 @@
                                 CornerRadius="8"
                                 Padding="16">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<TextBlock Text="✅" FontSize="16" VerticalAlignment="Top"/>
-								<TextBlock Text="{Binding StatusMessage}"
-                                           FontSize="14"
-                                           Foreground="#137333"
-                                           TextWrapping="Wrap"/>
+								<TextBlock Text="✅" Classes="BodyMedium" VerticalAlignment="Top"/>
+								<TextBlock Classes="BodySmall" Text="Agent configuration is complete and ready to use." TextWrapping="Wrap"/>
 							</StackPanel>
 						</Border>
 
 						<!-- Template Buttons -->
 						<StackPanel Spacing="12">
-							<TextBlock Text="Quick Templates" FontSize="16" FontWeight="Medium" Foreground="#202124"/>
+							<TextBlock Text="Quick Templates" Classes="BodyMedium" FontWeight="Medium" Foreground="#202124"/>
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Button Classes="SecondaryButton"
                                         Command="{Binding LoadInstructionTemplateCommand}"
                                         Padding="12,8"
                                         CornerRadius="6">
-									<TextBlock Text="Load Instruction Template" FontSize="12"/>
+									<TextBlock Text="Load Instruction Template" Classes="Caption"/>
 								</Button>
 								<Button Classes="SecondaryButton"
                                         Command="{Binding LoadPromptyTemplateCommand}"
                                         Padding="12,8"
                                         CornerRadius="6">
-									<TextBlock Text="Load Prompty Template" FontSize="12"/>
+									<TextBlock Text="Load Prompty Template" Classes="Caption"/>
 								</Button>
 							</StackPanel>
 						</StackPanel>
@@ -205,14 +191,12 @@
 						        Padding="16">
 							<StackPanel Spacing="8">
 								<StackPanel Orientation="Horizontal" Spacing="8">
-									<TextBlock Text="ℹ️" FontSize="16"/>
-									<TextBlock Text="File Creation" FontWeight="Medium" Foreground="#202124"/>
-								</StackPanel>
-								<TextBlock Text="When saved, the following files will be created:"
-                                           FontSize="14" Foreground="#5f6368" TextWrapping="Wrap"/>
-								<StackPanel Margin="16,4,0,0" Spacing="2">
-									<TextBlock Text="• Instructions file (.md) - Contains the behavior guidelines" FontSize="13" Foreground="#5f6368"/>
-									<TextBlock Text="• Prompty template (.prompty) - Contains the system prompt configuration" FontSize="13" Foreground="#5f6368"/>
+									<TextBlock Text="ℹ️" Classes="BodyMedium"/>
+									<StackPanel>
+										<TextBlock Classes="BodySmall" Text="Agent files should be placed in the following locations:" Foreground="#5f6368" TextWrapping="Wrap"/>
+										<TextBlock Text="• Instructions file (.md) - Contains the behavior guidelines" Classes="Caption" Foreground="#5f6368"/>
+										<TextBlock Text="• Prompty template (.prompty) - Contains the system prompt configuration" Classes="Caption" Foreground="#5f6368"/>
+									</StackPanel>
 								</StackPanel>
 							</StackPanel>
 						</Border>
@@ -236,7 +220,7 @@
                                 Classes="SecondaryButton"
                                 Padding="20,12"
                                 CornerRadius="8">
-							<TextBlock Text="Cancel" FontWeight="Medium" FontSize="14"/>
+							<TextBlock Text="Cancel" FontWeight="Medium" Classes="BodySmall"/>
 						</Button>
 
 						<!-- Save Button -->
@@ -246,8 +230,8 @@
                                 CornerRadius="8"
                                 IsEnabled="{Binding CanSaveAgent}">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<TextBlock Text="💾" FontSize="16"/>
-								<TextBlock Text="Save Agent" FontWeight="Medium" FontSize="14"/>
+								<TextBlock Text="💾" Classes="BodyMedium"/>
+								<TextBlock Text="Save Agent" FontWeight="Medium" Classes="BodySmall"/>
 							</StackPanel>
 						</Button>
 					</StackPanel>
@@ -260,9 +244,9 @@
                         CornerRadius="12">
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
 						<Border Width="48" Height="48" CornerRadius="24" Background="White">
-							<TextBlock Text="⏳" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+							<TextBlock Text="⏳" Classes="HeadlineSmall" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 						</Border>
-						<TextBlock Text="Saving agent..." Foreground="White" FontSize="16" FontWeight="Medium"/>
+						<TextBlock Text="Saving agent..." Foreground="White" Classes="BodyMedium" FontWeight="Medium"/>
 					</StackPanel>
 				</Border>
 			</Grid>

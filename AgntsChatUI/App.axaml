@@ -8,109 +8,252 @@
 		<local:ViewLocator/>
 	</Application.DataTemplates>
 
+	<Application.Resources>
+		<!-- Primary Colors -->
+		<SolidColorBrush x:Key="PrimaryBlue" Color="#2563eb"/>
+		<SolidColorBrush x:Key="PrimaryBlueHover" Color="#1d4ed8"/>
+		<SolidColorBrush x:Key="PrimaryBluePressed" Color="#1e40af"/>
+		
+		<!-- Secondary Colors -->
+		<SolidColorBrush x:Key="SecondaryGray" Color="#64748b"/>
+		<SolidColorBrush x:Key="SecondaryGrayLight" Color="#94a3b8"/>
+		
+		<!-- Success/Error Colors -->
+		<SolidColorBrush x:Key="SuccessGreen" Color="#10b981"/>
+		<SolidColorBrush x:Key="ErrorRed" Color="#ef4444"/>
+		<SolidColorBrush x:Key="WarningAmber" Color="#f59e0b"/>
+		
+		<!-- Neutral Palette -->
+		<SolidColorBrush x:Key="BackgroundPrimary" Color="#ffffff"/>
+		<SolidColorBrush x:Key="BackgroundSecondary" Color="#f8fafc"/>
+		<SolidColorBrush x:Key="BackgroundTertiary" Color="#f1f5f9"/>
+		<SolidColorBrush x:Key="BorderLight" Color="#e2e8f0"/>
+		<SolidColorBrush x:Key="BorderMedium" Color="#cbd5e1"/>
+		<SolidColorBrush x:Key="TextPrimary" Color="#1e293b"/>
+		<SolidColorBrush x:Key="TextSecondary" Color="#64748b"/>
+		<SolidColorBrush x:Key="TextTertiary" Color="#94a3b8"/>
+	</Application.Resources>
+
 	<Application.Styles>
 		<FluentTheme />
 
-		<!-- Global light theme overrides -->
-		<Style Selector="TextBox">
-			<Setter Property="Background" Value="White"/>
-			<Setter Property="Foreground" Value="#202124"/>
-			<Setter Property="BorderBrush" Value="#dadce0"/>
-			<Setter Property="SelectionBrush" Value="#4285f4"/>
-			<Setter Property="SelectionForegroundBrush" Value="White"/>
-		</Style>
+		<!-- =============================================================================
+             GLOBAL BASE TYPOGRAPHY DEFAULTS
+             ============================================================================= -->
 
-		<Style Selector="TextBox:focus">
-			<Setter Property="Background" Value="White"/>
-			<Setter Property="Foreground" Value="#202124"/>
-			<Setter Property="BorderBrush" Value="#4285f4"/>
-			<Setter Property="SelectionBrush" Value="#4285f4"/>
-			<Setter Property="SelectionForegroundBrush" Value="White"/>
-		</Style>
-
-		<Style Selector="ComboBox">
-			<Setter Property="Background" Value="White"/>
-			<Setter Property="Foreground" Value="#202124"/>
-			<Setter Property="BorderBrush" Value="#dadce0"/>
-		</Style>
-
-		<Style Selector="ComboBox:focus">
-			<Setter Property="Background" Value="White"/>
-			<Setter Property="Foreground" Value="#202124"/>
-			<Setter Property="BorderBrush" Value="#4285f4"/>
-		</Style>
-
-		<Style Selector="ComboBoxItem">
-			<Setter Property="Background" Value="White"/>
-			<Setter Property="Foreground" Value="#202124"/>
-		</Style>
-
-		<Style Selector="ComboBoxItem:pointerover">
-			<Setter Property="Background" Value="#f8f9fa"/>
-			<Setter Property="Foreground" Value="#202124"/>
-		</Style>
-
-		<Style Selector="ComboBoxItem:selected">
-			<Setter Property="Background" Value="#e8f0fe"/>
-			<Setter Property="Foreground" Value="#202124"/>
-		</Style>
-
-		<Style Selector="MenuItem">
-			<Setter Property="Background" Value="White"/>
-			<Setter Property="Foreground" Value="#202124"/>
-		</Style>
-
-		<Style Selector="MenuItem:pointerover">
-			<Setter Property="Background" Value="#f8f9fa"/>
-			<Setter Property="Foreground" Value="#202124"/>
+		<!-- Set a larger default font size for all text blocks -->
+		<Style Selector="TextBlock">
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
 		</Style>
 
 		<!-- =============================================================================
-             REUSABLE BUTTON STYLES
+             TYPOGRAPHY SYSTEM
              ============================================================================= -->
 
-		<!-- Primary Blue Button Style -->
+		<Style Selector="TextBlock.HeadlineLarge">
+			<Setter Property="FontSize" Value="36"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.HeadlineMedium">
+			<Setter Property="FontSize" Value="28"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.HeadlineSmall">
+			<Setter Property="FontSize" Value="24"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.TitleLarge">
+			<Setter Property="FontSize" Value="22"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.TitleMedium">
+			<Setter Property="FontSize" Value="20"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.TitleSmall">
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="Medium"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.BodyLarge">
+			<Setter Property="FontSize" Value="20"/>
+			<Setter Property="FontWeight" Value="Normal"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.BodyMedium">
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="FontWeight" Value="Normal"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.BodySmall">
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="Normal"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+		</Style>
+
+		<Style Selector="TextBlock.Caption">
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="FontWeight" Value="Normal"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextTertiary}"/>
+		</Style>
+
+		<!-- =============================================================================
+             ENHANCED INPUT STYLES
+             ============================================================================= -->
+
+		<Style Selector="TextBox">
+			<Setter Property="Background" Value="{DynamicResource BackgroundPrimary}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderMedium}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Padding" Value="16,20"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="SelectionBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="SelectionForegroundBrush" Value="White"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="TextBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="TextBox:pointerover">
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderMedium}"/>
+		</Style>
+
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="{DynamicResource BackgroundPrimary}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderMedium}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Padding" Value="16,20"/>
+			<Setter Property="FontSize" Value="16"/>
+		</Style>
+
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="ComboBoxItem">
+			<Setter Property="Background" Value="{DynamicResource BackgroundPrimary}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+			<Setter Property="Padding" Value="16,12"/>
+			<Setter Property="FontSize" Value="16"/>
+		</Style>
+
+		<Style Selector="ComboBoxItem:pointerover">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<Style Selector="ComboBoxItem:selected">
+			<Setter Property="Background" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="Opacity" Value="0.1"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryBlue}"/>
+		</Style>
+
+		<Style Selector="MenuItem">
+			<Setter Property="Background" Value="{DynamicResource BackgroundPrimary}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+			<Setter Property="Padding" Value="16,12"/>
+			<Setter Property="FontSize" Value="16"/>
+		</Style>
+
+		<Style Selector="MenuItem:pointerover">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+		</Style>
+
+		<!-- =============================================================================
+             ENHANCED BUTTON STYLES
+             ============================================================================= -->
+
+		<!-- Enhanced Primary Button -->
 		<Style Selector="Button.PrimaryButton">
-			<Setter Property="Background" Value="#4285f4"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryBlue}"/>
 			<Setter Property="Foreground" Value="White"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="Padding" Value="12,8"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="Padding" Value="20,16"/>
 			<Setter Property="MinWidth" Value="80"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
-		<!-- Secondary Outlined Button Style -->
+		<Style Selector="Button.PrimaryButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryBlueHover}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
+		</Style>
+
+		<Style Selector="Button.PrimaryButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryBluePressed}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<!-- Enhanced Secondary Button -->
 		<Style Selector="Button.SecondaryButton">
 			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="#5f6368"/>
-			<Setter Property="BorderBrush" Value="#dadce0"/>
+			<Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderMedium}"/>
 			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="CornerRadius" Value="8"/>
 			<Setter Property="FontWeight" Value="Medium"/>
-			<Setter Property="Padding" Value="16,8"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="Padding" Value="20,16"/>
 			<Setter Property="MinWidth" Value="80"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
-		<!-- Icon Button Style (Small circular buttons) -->
+		<Style Selector="Button.SecondaryButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="Foreground" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="RenderTransform" Value="scale(1.02)"/>
+		</Style>
+
+		<Style Selector="Button.SecondaryButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource BackgroundTertiary}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<!-- Enhanced Icon Button Style -->
 		<Style Selector="Button.IconButton">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Width" Value="32"/>
-			<Setter Property="Height" Value="32"/>
-			<Setter Property="CornerRadius" Value="16"/>
-			<Setter Property="HorizontalContentAlignment" Value="Center"/>
-			<Setter Property="VerticalContentAlignment" Value="Center"/>
-		</Style>
-		<Style Selector="Button.IconButton:pointerover">
-			<Setter Property="Background" Value="#f1f3f4"/>
-		</Style>
-		<Style Selector="Button.IconButton:pressed">
-			<Setter Property="Background" Value="#e8eaed"/>
-		</Style>
-
-		<!-- Large Icon Button Style (Header buttons) -->
-		<Style Selector="Button.LargeIconButton">
 			<Setter Property="Background" Value="Transparent"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="Width" Value="40"/>
@@ -118,11 +261,56 @@
 			<Setter Property="CornerRadius" Value="20"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
-		<!-- Send Button Style (Circular send button) -->
+		<Style Selector="Button.IconButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="RenderTransform" Value="scale(1.1)"/>
+		</Style>
+
+		<Style Selector="Button.IconButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource BackgroundTertiary}"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
+		</Style>
+
+		<!-- Enhanced Large Icon Button Style -->
+		<Style Selector="Button.LargeIconButton">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Width" Value="48"/>
+			<Setter Property="Height" Value="48"/>
+			<Setter Property="CornerRadius" Value="24"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.LargeIconButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="RenderTransform" Value="scale(1.05)"/>
+		</Style>
+
+		<Style Selector="Button.LargeIconButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource BackgroundTertiary}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<!-- Enhanced Send Button Style -->
 		<Style Selector="Button.SendButton">
-			<Setter Property="Background" Value="#4285f4"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryBlue}"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="Width" Value="44"/>
 			<Setter Property="Height" Value="44"/>
@@ -130,6 +318,23 @@
 			<Setter Property="Foreground" Value="White"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.SendButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource PrimaryBlueHover}"/>
+			<Setter Property="RenderTransform" Value="scale(1.05)"/>
+		</Style>
+
+		<Style Selector="Button.SendButton:pressed">
+			<Setter Property="Background" Value="{DynamicResource PrimaryBluePressed}"/>
+			<Setter Property="RenderTransform" Value="scale(0.95)"/>
 		</Style>
 
 		<!-- Upload Button Style (Special styling for upload) -->
@@ -138,6 +343,7 @@
 			<Setter Property="Foreground" Value="White"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalAlignment" Value="Stretch"/>
+			<Setter Property="Cursor" Value="Hand"/>
 		</Style>
 
 		<!-- Transparent Button Style (For transparent overlays) -->
@@ -149,25 +355,114 @@
 			<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
 			<Setter Property="VerticalContentAlignment" Value="Stretch"/>
 			<Setter Property="Padding" Value="0"/>
-		</Style>
-		<Style Selector="Button.TransparentButton:pointerover">
-			<Setter Property="Background" Value="#f1f3f4"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
 		</Style>
 
-		<!-- Floating Button Style (For floating action buttons) -->
+		<Style Selector="Button.TransparentButton:pointerover">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="Opacity" Value="0.5"/>
+		</Style>
+
+		<!-- Enhanced Floating Button Style -->
 		<Style Selector="Button.FloatingButton">
-			<Setter Property="Background" Value="#4285f4"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryBlue}"/>
 			<Setter Property="Foreground" Value="White"/>
 			<Setter Property="BorderThickness" Value="0"/>
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
 			<Setter Property="FontWeight" Value="Bold"/>
+			<Setter Property="CornerRadius" Value="24"/>
+			<Setter Property="Padding" Value="16,12"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Background" Duration="0:0:0.15"/>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+				</Transitions>
+			</Setter>
 		</Style>
+
 		<Style Selector="Button.FloatingButton:pointerover">
-			<Setter Property="Background" Value="#3367d6"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryBlueHover}"/>
+			<Setter Property="RenderTransform" Value="scale(1.05)"/>
 		</Style>
+
 		<Style Selector="Button.FloatingButton:pressed">
-			<Setter Property="Background" Value="#2a56c6"/>
+			<Setter Property="Background" Value="{DynamicResource PrimaryBluePressed}"/>
+			<Setter Property="RenderTransform" Value="scale(0.98)"/>
+		</Style>
+
+		<!-- =============================================================================
+             CARD & CONTAINER STYLES
+             ============================================================================= -->
+
+		<!-- Standard Card Style -->
+		<Style Selector="Border.StandardCard">
+			<Setter Property="Background" Value="{DynamicResource BackgroundPrimary}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderLight}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="12"/>
+			<Setter Property="Padding" Value="20"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Border.StandardCard:pointerover">
+			<Setter Property="RenderTransform" Value="translateY(-2px)"/>
+		</Style>
+
+		<!-- Interactive Card Style -->
+		<Style Selector="Border.InteractiveCard">
+			<Setter Property="Background" Value="{DynamicResource BackgroundPrimary}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource BorderLight}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="12"/>
+			<Setter Property="Padding" Value="20"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Transitions">
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+					<BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+					<BrushTransition Property="Background" Duration="0:0:0.2"/>
+				</Transitions>
+			</Setter>
+		</Style>
+
+		<Style Selector="Border.InteractiveCard:pointerover">
+			<Setter Property="Background" Value="{DynamicResource BackgroundSecondary}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="RenderTransform" Value="translateY(-2px)"/>
+		</Style>
+
+		<Style Selector="Border.InteractiveCard:pressed">
+			<Setter Property="RenderTransform" Value="translateY(0px)"/>
+		</Style>
+
+		<!-- =============================================================================
+             FOCUS MANAGEMENT & ACCESSIBILITY
+             ============================================================================= -->
+
+		<Style Selector="Button:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="Border.InteractiveCard:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="Border.StandardCard:focus">
+			<Setter Property="BorderBrush" Value="{DynamicResource PrimaryBlue}"/>
+			<Setter Property="BorderThickness" Value="2"/>
 		</Style>
 
 	</Application.Styles>

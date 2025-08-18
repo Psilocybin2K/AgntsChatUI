@@ -12,115 +12,46 @@
 		<Grid>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="*"/>
 			</Grid.RowDefinitions>
 
-			<!-- Header with Collapse/Expand -->
-			<Border Grid.Row="0" Padding="0" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
-				<Grid>
-					<!-- Expanded Layout -->
-					<Grid IsVisible="{Binding IsExpanded}" Margin="20">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto"/>
-							<ColumnDefinition Width="*"/>
-						</Grid.ColumnDefinitions>
-
-						<!-- Collapse Button -->
-						<Button Grid.Column="0" 
-						        Classes="IconButton" 
-						        Command="{Binding ToggleExpandedCommand}"
-						        Width="40" Height="40"
-						        Margin="0,0,12,0"
-						        ToolTip.Tip="Click to collapse panel">
-							<Grid>
-								<TextBlock Text="▼" FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-							</Grid>
-						</Button>
-
-						<!-- Title Section -->
-						<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-							<Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
-								<TextBlock Text="🤖" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-							</Border>
-							<StackPanel>
-								<TextBlock Text="Agent Management" FontSize="24" FontWeight="Medium" Foreground="#202124"/>
-								<TextBlock Text="Create and manage AI agents" FontSize="14" Foreground="#5f6368"/>
-							</StackPanel>
-						</StackPanel>
-					</Grid>
-
-					<!-- Collapsed Layout -->
-					<StackPanel IsVisible="{Binding !IsExpanded}" 
-					           Orientation="Vertical" 
-					           HorizontalAlignment="Center" 
-					           VerticalAlignment="Center"
-					           Spacing="8"
-					           Margin="0,12">
-						<!-- Expand Button -->
-						<Button Classes="IconButton" 
-						        Command="{Binding ToggleExpandedCommand}"
-						        Width="32" Height="32"
-						        ToolTip.Tip="Click to expand panel"
-						        HorizontalAlignment="Center">
-							<TextBlock Text="▶" FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-						</Button>
-						
-						<!-- Icon and Label -->
-						<TextBlock Text="🤖" FontSize="16" HorizontalAlignment="Center"/>
-						<TextBlock Text="Agents" FontSize="9" FontWeight="Medium" Foreground="#202124" HorizontalAlignment="Center"/>
-					</StackPanel>
-				</Grid>
-			</Border>
-
-			<!-- Agent Count and Status -->
-			<Border Grid.Row="1" Padding="20,16" BorderBrush="#e8eaed" BorderThickness="0,0,0,1" IsVisible="{Binding IsExpanded}">
+			<!-- Simplified Header -->
+			<Border Grid.Row="0" Padding="12" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
 				<Grid>
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="*"/>
 						<ColumnDefinition Width="Auto"/>
 					</Grid.ColumnDefinitions>
 					
-					<StackPanel Grid.Column="0" Spacing="8">
-						<TextBlock Text="{Binding Agents.Count, StringFormat='AGENTS ({0})'}" FontSize="12" FontWeight="Medium" Foreground="#5f6368"/>
-						<TextBlock Text="{Binding StatusMessage}" FontSize="13" Foreground="#5f6368"/>
+					<StackPanel Grid.Column="0" Spacing="4">
+						<TextBlock Text="Agents" Classes="TitleSmall" FontWeight="Medium" Foreground="#202124"/>
+						<TextBlock Classes="Caption">
+							<Run Text="{Binding Agents.Count}"/>
+							<Run Text=" agents"/>
+						</TextBlock>
 					</StackPanel>
 					
-					<!-- Add Button -->
+					<!-- Quick Add Button -->
 					<Button Grid.Column="1"
 					        Command="{Binding AddAgentCommand}"
 					        Classes="PrimaryButton"
-					        Padding="12,8"
-					        CornerRadius="8"
 					        ToolTip.Tip="Add New Agent">
-						<StackPanel Orientation="Horizontal" Spacing="6">
-							<TextBlock Text="➕" FontSize="14"/>
-							<TextBlock Text="Add" FontSize="14" FontWeight="Medium"/>
-						</StackPanel>
+						<TextBlock Text="+" Classes="BodyMedium"/>
 					</Button>
 				</Grid>
 			</Border>
 
-			<!-- Agent List -->
-			<Border Grid.Row="2" Background="#f8f9fa" CornerRadius="8" Padding="8" Margin="8" IsVisible="{Binding IsExpanded}">
+			<!-- Simplified Agent List -->
+			<Border Grid.Row="1" Padding="8" Margin="8">
 				<ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 							ScrollViewer.VerticalScrollBarVisibility="Auto">
-					<StackPanel Spacing="12">
+					<StackPanel Spacing="8">
 						<ItemsControl ItemsSource="{Binding Agents}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<Border Padding="12,16" 
-											Margin="0,0,0,8" 
-											CornerRadius="12" 
-											Background="White"
-											BorderBrush="#e8eaed"
-											BorderThickness="1">
-										<Border.Styles>
-											<Style Selector="Border:pointerover">
-												<Setter Property="Background" Value="#f8f9fa"/>
-												<Setter Property="BorderBrush" Value="#4285f4"/>
-											</Style>
-										</Border.Styles>
+									<Border Classes="InteractiveCard" 
+											Padding="12" 
+											Margin="0,0,0,8">
 										<Grid>
 											<Grid.ColumnDefinitions>
 												<ColumnDefinition Width="*"/>
@@ -130,38 +61,36 @@
 											
 											<!-- Agent Info -->
 											<StackPanel Grid.Column="0" Spacing="4">
-												<TextBlock Text="{Binding Name}" 
-														FontWeight="Medium" 
-														FontSize="14"
-														Foreground="#202124"/>
-												<TextBlock Text="{Binding Description}" 
-														FontSize="12" 
-														Foreground="#5f6368" 
+												<TextBlock Classes="BodyMedium" 
+														Text="{Binding Name}"
+														FontWeight="Medium"/>
+												<TextBlock Classes="Caption" 
+														Text="{Binding Description}" 
 														TextWrapping="Wrap" 
-														MaxLines="2" 
+														MaxLines="1" 
 														TextTrimming="CharacterEllipsis"/>
 											</StackPanel>
 											
 											<!-- Edit Button -->
 											<Button Grid.Column="1" 
-													Classes="IconButton" 
+													Classes="SecondaryButton" 
 													Command="{Binding $parent[UserControl].DataContext.EditAgentCommand}" 
 													CommandParameter="{Binding}" 
 													ToolTip.Tip="Edit Agent"
-													Width="32" Height="32"
-													Margin="8,0,4,0">
-												<TextBlock Text="✏️" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+													Width="24" Height="24"
+													Margin="4,0,2,0">
+												<TextBlock Text="E" Classes="Caption" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 											</Button>
 											
 											<!-- Delete Button -->
 											<Button Grid.Column="2" 
-													Classes="IconButton" 
+													Classes="SecondaryButton" 
 													Command="{Binding $parent[UserControl].DataContext.DeleteAgentCommand}" 
 													CommandParameter="{Binding}" 
 													ToolTip.Tip="Delete Agent"
-													Width="32" Height="32"
-													Margin="4,0,0,0">
-												<TextBlock Text="🗑️" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+													Width="24" Height="24"
+													Margin="2,0,0,0">
+												<TextBlock Text="D" Classes="Caption" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 											</Button>
 										</Grid>
 									</Border>
@@ -171,39 +100,22 @@
 
 						<!-- Loading State -->
 						<Border IsVisible="{Binding IsLoading}"
-								Background="#f8f9fa" 
-								CornerRadius="12" 
+								Classes="StandardCard" 
 								Padding="16">
 							<StackPanel HorizontalAlignment="Center" Spacing="8">
-								<TextBlock Text="⏳" FontSize="24" HorizontalAlignment="Center"/>
-								<TextBlock Text="Loading agents..." FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center"/>
+								<TextBlock Text="Loading..." Classes="BodyMedium" HorizontalAlignment="Center"/>
 							</StackPanel>
 						</Border>
 
 						<!-- Empty State -->
 						<Border IsVisible="{Binding !Agents.Count}"
-								Background="White" 
-								CornerRadius="12" 
-								Padding="24"
-								BorderBrush="#e8eaed"
-								BorderThickness="1">
-							<StackPanel HorizontalAlignment="Center" Spacing="12">
-								<TextBlock Text="🤖" FontSize="32" HorizontalAlignment="Center"/>
-								<StackPanel Spacing="4">
-									<TextBlock Text="No agents found" FontSize="16" FontWeight="Medium" Foreground="#202124" HorizontalAlignment="Center"/>
-									<TextBlock Text="Create your first agent to get started" 
-											FontSize="12" 
-											Foreground="#5f6368" 
-											HorizontalAlignment="Center"/>
-								</StackPanel>
-								<Button Classes="PrimaryButton"
-										Command="{Binding AddAgentCommand}"
-										Padding="16,8"
-										CornerRadius="8">
-									<StackPanel Orientation="Horizontal" Spacing="6">
-										<TextBlock Text="➕" FontSize="14"/>
-										<TextBlock Text="Create Agent" FontSize="12" FontWeight="Medium"/>
-									</StackPanel>
+								Classes="StandardCard" 
+								Padding="16">
+							<StackPanel HorizontalAlignment="Center" Spacing="8">
+								<TextBlock Classes="BodyMedium" Text="No agents" HorizontalAlignment="Center"/>
+								<Button Classes="SecondaryButton"
+										Command="{Binding AddAgentCommand}">
+									<TextBlock Text="Add Agent" Classes="Caption"/>
 								</Button>
 							</StackPanel>
 						</Border>

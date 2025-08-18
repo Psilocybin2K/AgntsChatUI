@@ -83,54 +83,9 @@ namespace AgntsChatUI.Views
             await dialog.ShowDialog(this);
         }
 
-        private void OnDataContextChanged(object? sender, EventArgs e)
-        {
-            if (this.DataContext is MainWindowViewModel viewModel)
-            {
-                // Subscribe to property changes for dynamic column width updates
-                viewModel.AgentManagementViewModel.PropertyChanged += this.OnAgentManagementPropertyChanged;
-                viewModel.DataSourceManagementViewModel.PropertyChanged += this.OnDataSourceManagementPropertyChanged;
-
-                // Set initial state (collapsed by default)
-                this.UpdateAgentColumnWidth(false);
-                this.UpdateDataSourceColumnWidth(false);
-            }
-        }
-
-        private void OnAgentManagementPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(AgentManagementViewModel.IsExpanded) &&
-                sender is AgentManagementViewModel agentViewModel)
-            {
-                this.UpdateAgentColumnWidth(agentViewModel.IsExpanded);
-            }
-        }
-
-        private void OnDataSourceManagementPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(DataSourceManagementViewModel.IsExpanded) &&
-                sender is DataSourceManagementViewModel dataSourceViewModel)
-            {
-                this.UpdateDataSourceColumnWidth(dataSourceViewModel.IsExpanded);
-            }
-        }
-
-        private void UpdateAgentColumnWidth(bool isExpanded)
-        {
-            Grid? mainGrid = this.FindControl<Grid>("MainGrid");
-            if (mainGrid?.ColumnDefinitions.Count > 0)
-            {
-                mainGrid.ColumnDefinitions[0].Width = isExpanded ? new GridLength(400, GridUnitType.Pixel) : new GridLength(50, GridUnitType.Pixel);
-            }
-        }
-
-        private void UpdateDataSourceColumnWidth(bool isExpanded)
-        {
-            Grid? mainGrid = this.FindControl<Grid>("MainGrid");
-            if (mainGrid?.ColumnDefinitions.Count > 1)
-            {
-                mainGrid.ColumnDefinitions[1].Width = isExpanded ? new GridLength(600, GridUnitType.Pixel) : new GridLength(50, GridUnitType.Pixel);
-            }
-        }
+        		private void OnDataContextChanged(object? sender, EventArgs e)
+		{
+			// Legacy expand/collapse behavior removed - using fixed layout from XAML
+		}
     }
 }

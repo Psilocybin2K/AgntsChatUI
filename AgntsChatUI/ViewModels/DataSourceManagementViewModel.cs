@@ -125,10 +125,10 @@ namespace AgntsChatUI.ViewModels
             }, "Selecting file for import...");
         }
 
-        [RelayCommand(CanExecute = nameof(CanExecuteSelectedOperations))]
-        private async Task EditDataSource()
+        [RelayCommand(CanExecute = nameof(CanExecuteOperations))]
+        private async Task EditDataSource(DataSourceDefinition dataSource)
         {
-            if (this.SelectedDataSource == null)
+            if (dataSource == null)
             {
                 return;
             }
@@ -136,22 +136,21 @@ namespace AgntsChatUI.ViewModels
             await this.ExecuteWithOperationFeedbackAsync(async () =>
             {
                 // Stub: in real app, show edit dialog and update fields
-                this.SelectedDataSource.Description += " (edited)";
-                this.SelectedDataSource.DateModified = DateTime.Now;
+                dataSource.Description += " (edited)";
+                dataSource.DateModified = DateTime.Now;
 
-                if (!await this._dataSourceService.ValidateDataSourceAsync(this.SelectedDataSource))
+                if (!await this._dataSourceService.ValidateDataSourceAsync(dataSource))
                 {
                     throw new InvalidOperationException("Invalid data source configuration after editing.");
                 }
 
-                DataSourceDefinition saved = await this._dataSourceService.SaveDataSourceAsync(this.SelectedDataSource);
+                DataSourceDefinition saved = await this._dataSourceService.SaveDataSourceAsync(dataSource);
 
                 // Replace in collection safely
-                int idx = this.DataSources.IndexOf(this.SelectedDataSource);
+                int idx = this.DataSources.IndexOf(dataSource);
                 if (idx >= 0)
                 {
                     this.DataSources[idx] = saved;
-                    this.SelectedDataSource = saved; // Update selection
                 }
 
                 await this._dataSourceManager.RefreshDataSourcesAsync();
@@ -160,16 +159,16 @@ namespace AgntsChatUI.ViewModels
             }, "Updating data source...");
         }
 
-        [RelayCommand(CanExecute = nameof(CanExecuteSelectedOperations))]
-        private async Task DeleteDataSource()
+        [RelayCommand(CanExecute = nameof(CanExecuteOperations))]
+        private async Task DeleteDataSource(DataSourceDefinition dataSource)
         {
-            if (this.SelectedDataSource == null)
+            if (dataSource == null)
             {
                 return;
             }
 
-            string dataSourceName = this.SelectedDataSource.Name;
-            int dataSourceId = this.SelectedDataSource.Id ?? 0;
+            string dataSourceName = dataSource.Name;
+            int dataSourceId = dataSource.Id ?? 0;
 
             await this.ExecuteWithOperationFeedbackAsync(async () =>
             {
@@ -184,8 +183,7 @@ namespace AgntsChatUI.ViewModels
                     throw new InvalidOperationException("Failed to delete data source: Not found or already deleted.");
                 }
 
-                this.DataSources.Remove(this.SelectedDataSource);
-                this.SelectedDataSource = null;
+                this.DataSources.Remove(dataSource);
                 await this._dataSourceManager.RefreshDataSourcesAsync();
 
                 return $"Successfully deleted data source '{dataSourceName}'";
@@ -200,18 +198,19 @@ namespace AgntsChatUI.ViewModels
                 return;
             }
 
-            bool originalState = dataSource.IsEnabled;
-            string action = originalState ? "disable" : "enable";
+            // The checkbox binding has already updated the IsEnabled property
+            // We just need to save the current state
+            bool currentState = dataSource.IsEnabled;
+            string action = currentState ? "enable" : "disable";
 
             await this.ExecuteWithOperationFeedbackAsync(async () =>
             {
-                dataSource.IsEnabled = !dataSource.IsEnabled;
                 dataSource.DateModified = DateTime.Now;
 
                 if (!await this._dataSourceService.ValidateDataSourceAsync(dataSource))
                 {
                     // Revert on validation failure
-                    dataSource.IsEnabled = originalState;
+                    dataSource.IsEnabled = !currentState;
                     throw new InvalidOperationException($"Cannot {action} data source: Invalid configuration.");
                 }
 

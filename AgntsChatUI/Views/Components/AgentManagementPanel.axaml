@@ -1,0 +1,106 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AgntsChatUI.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="AgntsChatUI.Views.Components.AgentManagementPanel"
+             x:DataType="vm:MainWindowViewModel">
+
+	<Grid Panel.ZIndex="1000">
+		<!-- Backdrop with Animation -->
+		<Border Background="#00000020"
+		        Name="Backdrop"
+		        IsVisible="{Binding ChatViewModel.IsAgentPanelOpen}">
+			<Border.Transitions>
+				<Transitions>
+					<DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+				</Transitions>
+			</Border.Transitions>
+		</Border>
+
+		<!-- Slide-out Panel with Animation -->
+		<Border Width="300"
+		        HorizontalAlignment="Right"
+		        Background="White"
+		        BorderBrush="#e8eaed"
+		        BorderThickness="1,0,0,0"
+		        Name="SlidePanel"
+		        IsVisible="{Binding ChatViewModel.IsAgentPanelOpen}">
+			<Border.RenderTransform>
+				<TranslateTransform X="0"/>
+			</Border.RenderTransform>
+			<Border.Transitions>
+				<Transitions>
+					<TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"/>
+				</Transitions>
+			</Border.Transitions>
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="*"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+
+				<!-- Header -->
+				<Border Grid.Row="0" Padding="16" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+						</Grid.ColumnDefinitions>
+						<TextBlock Grid.Column="0" Text="Agents" Classes="TitleSmall"/>
+						<Button Grid.Column="1" Classes="SecondaryButton" Command="{Binding ChatViewModel.ToggleAgentPanelCommand}">
+							<TextBlock Text="Close" Classes="BodySmall"/>
+						</Button>
+					</Grid>
+				</Border>
+
+				<!-- Content: Compact Agent List -->
+				<Border Grid.Row="1" Padding="12">
+					<Border.DataContext>
+						<Binding Path="AgentManagementViewModel"/>
+					</Border.DataContext>
+					<StackPanel Spacing="8">
+						<Button Classes="PrimaryButton" Command="{Binding AddAgentCommand}">
+							<TextBlock Text="New Agent" Classes="BodyMedium"/>
+						</Button>
+
+						<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+							<ItemsControl ItemsSource="{Binding Agents}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<Border Classes="InteractiveCard" Padding="12" Margin="0,0,0,8">
+											<Grid>
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="*"/>
+													<ColumnDefinition Width="Auto"/>
+													<ColumnDefinition Width="Auto"/>
+												</Grid.ColumnDefinitions>
+												<StackPanel Grid.Column="0" Spacing="2">
+													<TextBlock Classes="BodyMedium" Text="{Binding Name}"/>
+													<TextBlock Classes="Caption" Text="{Binding Description}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+												</StackPanel>
+												<Button Grid.Column="1" Classes="SecondaryButton" Command="{Binding $parent[ItemsControl].DataContext.EditAgentCommand}" CommandParameter="{Binding}">
+													<TextBlock Text="Edit" Classes="BodySmall"/>
+												</Button>
+												<Button Grid.Column="2" Classes="SecondaryButton" Command="{Binding $parent[ItemsControl].DataContext.DeleteAgentCommand}" CommandParameter="{Binding}">
+													<TextBlock Text="Del" Classes="BodySmall"/>
+												</Button>
+										</Grid>
+									</Border>
+								</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</ScrollViewer>
+					</StackPanel>
+				</Border>
+
+				<!-- Footer -->
+				<Border Grid.Row="2" Padding="12" BorderBrush="#e8eaed" BorderThickness="0,1,0,0">
+					<TextBlock Text="Manage agents quickly" Classes="Caption" Foreground="#5f6368"/>
+				</Border>
+			</Grid>
+		</Border>
+	</Grid>
+</UserControl>

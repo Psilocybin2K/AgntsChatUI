@@ -51,12 +51,7 @@ namespace AgntsChatUI.Services
                     return Enumerable.Empty<DataSourceResult>();
                 }
 
-                // Simple keyword search (case-insensitive)
-                if (content.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                    Path.GetFileNameWithoutExtension(this._configuration.FilePath).Contains(query, StringComparison.OrdinalIgnoreCase))
-                {
-                    results.Add(this.CreateDataSourceResult(this._configuration.FilePath, content));
-                }
+                results.Add(this.CreateDataSourceResult(this._configuration.FilePath, content));
             }
             catch (Exception ex)
             {

@@ -31,18 +31,18 @@
                                 Margin="0,0,12,0"
                                 ToolTip.Tip="Click to collapse panel">
                             <Grid>
-                                <TextBlock Text="▼" FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="▼" Classes="Caption" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                         </Button>
 
                         <!-- Title Section -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                             <Border Width="40" Height="40" CornerRadius="20" Background="#4285f4">
-                                <TextBlock Text="📊" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="📊" Classes="TitleMedium" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel>
-                                <TextBlock Text="Data Source Management" FontSize="24" FontWeight="Medium" Foreground="#202124"/>
-                                <TextBlock Text="Configure and manage data sources for AI context" FontSize="14" Foreground="#5f6368"/>
+                                <TextBlock Text="Data Source Management" Classes="HeadlineSmall" FontWeight="Medium" Foreground="#202124"/>
+                                <TextBlock Text="Configure and manage data sources for AI context" Classes="BodySmall" Foreground="#5f6368"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -60,12 +60,12 @@
                                 Width="32" Height="32"
                                 ToolTip.Tip="Click to expand panel"
                                 HorizontalAlignment="Center">
-                            <TextBlock Text="▶" FontSize="12" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="▶" Classes="Caption" Foreground="#5f6368" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                         
                         <!-- Icon and Label -->
-                        <TextBlock Text="📊" FontSize="16" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Data" FontSize="9" FontWeight="Medium" Foreground="#202124" HorizontalAlignment="Center"/>
+                        <TextBlock Text="📊" Classes="BodyMedium" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Data" Classes="Caption" FontWeight="Medium" Foreground="#202124" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -73,51 +73,56 @@
             <!-- Status and Error Messages (only visible when expanded) -->
             <StackPanel Grid.Row="1" Margin="20,16,20,0" IsVisible="{Binding IsExpanded}">
                 <!-- Loading Indicator -->
-                <Border IsVisible="{Binding IsLoading}" Background="#e3f2fd" BorderBrush="#2196f3" 
-                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⏳" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                        <TextBlock Text="{Binding StatusMessage}" Foreground="#1976d2" 
+                <Border IsVisible="{Binding IsLoading}" Classes="StandardCard" 
+                        Background="{DynamicResource PrimaryBlue}"
+                        BorderBrush="{DynamicResource PrimaryBlue}" Padding="16" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="⏳" VerticalAlignment="Top"/>
+                        <TextBlock Classes="BodyMedium" Text="{Binding StatusMessage}" 
                                    TextWrapping="Wrap" MaxWidth="300"/>
                     </StackPanel>
                 </Border>
                 
                 <!-- Operation Status -->
-                <Border IsVisible="{Binding IsOperationInProgress}" Background="#fff3e0" BorderBrush="#ff9800" 
-                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔄" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                        <TextBlock Text="{Binding OperationStatus}" Foreground="#f57c00" 
+                <Border IsVisible="{Binding IsOperationInProgress}" Classes="StandardCard" 
+                        Background="{DynamicResource WarningAmber}"
+                        BorderBrush="{DynamicResource WarningAmber}" Padding="16" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="🔄" VerticalAlignment="Top"/>
+                        <TextBlock Classes="BodyMedium" Text="{Binding OperationStatus}" 
                                    TextWrapping="Wrap" MaxWidth="300"/>
                     </StackPanel>
                 </Border>
                 
                 <!-- Error Message -->
-                <Border IsVisible="{Binding HasError}" Background="#ffebee" BorderBrush="#f44336" 
-                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
+                <Border IsVisible="{Binding HasError}" Classes="StandardCard" 
+                        Background="{DynamicResource ErrorRed}"
+                        BorderBrush="{DynamicResource ErrorRed}" Padding="16" Margin="0,0,0,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal" Grid.Column="0">
-                            <TextBlock Text="❌" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                            <TextBlock Text="{Binding ErrorMessage}" Foreground="#c62828" 
+                        <StackPanel Orientation="Horizontal" Grid.Column="0" Spacing="8">
+                            <TextBlock Text="❌" VerticalAlignment="Top"/>
+                            <TextBlock Classes="BodyMedium" Text="{Binding ErrorMessage}" 
                                        TextWrapping="Wrap" MaxWidth="280"/>
                         </StackPanel>
                         <Button Grid.Column="1" Classes="IconButton" Command="{Binding ClearErrorCommand}"
                                 ToolTip.Tip="Clear error" Margin="8,0,0,0">
-                            <TextBlock Text="✕" FontSize="12" Foreground="#c62828"/>
+                            <TextBlock Text="✕" Classes="Caption"/>
                         </Button>
                     </Grid>
                 </Border>
                 
                 <!-- Success Message -->
-                <Border IsVisible="{Binding StatusMessage}" Background="#e8f5e8" BorderBrush="#4caf50" 
-                        BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,8">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="✅" Margin="0,0,8,0" VerticalAlignment="Top"/>
-                        <TextBlock Text="{Binding StatusMessage}" Foreground="#2e7d32" 
+                <Border IsVisible="{Binding StatusMessage}" Classes="StandardCard" 
+                        Background="{DynamicResource SuccessGreen}"
+                        BorderBrush="{DynamicResource SuccessGreen}" Padding="16" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="✅" VerticalAlignment="Top" Foreground="{DynamicResource SuccessGreen}"/>
+                        <TextBlock Classes="BodyMedium" Text="{Binding StatusMessage}" 
+                                   Foreground="{DynamicResource TextPrimary}"
                                    TextWrapping="Wrap" MaxWidth="300"/>
                     </StackPanel>
                 </Border>
@@ -128,38 +133,33 @@
                 <StackPanel>
                     <!-- Action Buttons -->
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,16" HorizontalAlignment="Left">
-                        <Button Content="Add Data Source" Command="{Binding AddDataSourceCommand}" 
-                                Classes="PrimaryButton" Padding="16,8" CornerRadius="6"
+                        <Button Command="{Binding AddDataSourceCommand}" 
+                                Classes="PrimaryButton"
                                 ToolTip.Tip="Import a specific file as a new data source">
-                            <Button.Content>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="📄" FontSize="14"/>
-                                    <TextBlock Text="Add Data Source" FontWeight="Medium"/>
-                                </StackPanel>
-                            </Button.Content>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="📄" Classes="BodyMedium"/>
+                                <TextBlock Classes="TitleSmall" Text="Add Data Source"/>
+                            </StackPanel>
                         </Button>
-                        <Button Content="Refresh" Command="{Binding RefreshDataSourcesCommand}" 
-                                Classes="SecondaryButton" Padding="12,8" CornerRadius="6">
-                            <Button.Content>
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="🔄" FontSize="12"/>
-                                    <TextBlock Text="Refresh" FontWeight="Medium"/>
-                                </StackPanel>
-                            </Button.Content>
+                        <Button Command="{Binding RefreshDataSourcesCommand}" 
+                                Classes="SecondaryButton">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="🔄" Classes="BodySmall"/>
+                                <TextBlock Classes="TitleSmall" Text="Refresh"/>
+                            </StackPanel>
                         </Button>
                     </StackPanel>
                     
                     <!-- Data Source Count -->
-                    <TextBlock Text="{Binding DataSources.Count}" 
-                               Foreground="#666" FontSize="12" Margin="0,0,0,12" 
+                    <TextBlock Classes="Caption" Text="{Binding DataSources.Count}" 
+                               Margin="0,0,0,12" 
                                HorizontalAlignment="Right"/>
                     
                     <!-- Data Sources -->
                     <ItemsControl ItemsSource="{Binding DataSources}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="models:DataSourceDefinition">
-                                <Border Margin="0,0,0,8" Padding="16" Background="#fff" CornerRadius="6" 
-                                        BorderBrush="#e0e0e0" BorderThickness="1">
+                                <Border Classes="InteractiveCard" Margin="0,0,0,16" Padding="24">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -175,41 +175,41 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             
-                                            <!-- Toggle Switch -->
-                                            <ToggleSwitch Grid.Column="0" 
-                                                          IsChecked="{Binding IsEnabled, Mode=TwoWay}" 
-                                                          Command="{Binding $parent[UserControl].DataContext.ToggleDataSourceCommand}" 
-                                                          CommandParameter="{Binding}" 
-                                                          Margin="0,0,16,0"/>
+                                            <!-- Checkbox -->
+                                            <CheckBox Grid.Column="0" 
+                                                      IsChecked="{Binding IsEnabled, Mode=TwoWay}" 
+                                                      Command="{Binding $parent[UserControl].DataContext.ToggleDataSourceCommand}" 
+                                                      CommandParameter="{Binding}" 
+                                                      Margin="0,0,16,0"
+                                                      VerticalAlignment="Center"/>
                                             
                                             <!-- Title and Type -->
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" 
-                                                           TextWrapping="Wrap" Margin="0,0,0,2"/>
-                                                <TextBlock Text="{Binding Type}" Foreground="#666" FontSize="12"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                                <TextBlock Classes="TitleMedium" Text="{Binding Name}" 
+                                                           TextWrapping="Wrap"/>
+                                                <TextBlock Classes="BodySmall" Text="{Binding Type}"/>
                                             </StackPanel>
                                             
                                             <!-- Action Buttons -->
                                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" 
                                                         VerticalAlignment="Center">
-                                                <Button Content="Edit" Classes="SecondaryButton" 
-                                                        Padding="8,4" CornerRadius="4" FontSize="12"
-                                                        Command="{Binding $parent[UserControl].DataContext.EditDataSourceCommand}"/>
-                                                <Button Content="Delete" Classes="SecondaryButton" 
-                                                        Padding="8,4" CornerRadius="4" FontSize="12"
-                                                        Command="{Binding $parent[UserControl].DataContext.DeleteDataSourceCommand}"/>
+                                                <Button Classes="SecondaryButton" 
+                                                        Command="{Binding $parent[UserControl].DataContext.DeleteDataSourceCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <TextBlock Classes="TitleSmall" Text="Delete"/>
+                                                </Button>
                                             </StackPanel>
                                         </Grid>
                                         
                                         <!-- Description Row -->
-                                        <TextBlock Grid.Row="1" Text="{Binding Description}" 
-                                                   Foreground="#888" FontSize="13" Margin="0,8,0,0"
-                                                   TextWrapping="Wrap" LineHeight="1.4"/>
+                                        <TextBlock Grid.Row="1" Classes="BodyMedium" Text="{Binding Description}" 
+                                                   Margin="0,16,0,0"
+                                                   TextWrapping="Wrap"/>
                                         
                                         <!-- Metadata Row -->
-                                        <TextBlock Grid.Row="2" 
+                                        <TextBlock Grid.Row="2" Classes="Caption"
                                                    Text="{Binding DateModified, StringFormat='Last modified: {0:yyyy-MM-dd HH:mm}'}" 
-                                                   Foreground="#999" FontSize="11" Margin="0,8,0,0"/>
+                                                   Margin="0,12,0,0"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
