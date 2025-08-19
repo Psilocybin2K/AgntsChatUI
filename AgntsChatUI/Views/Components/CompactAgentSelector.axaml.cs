@@ -47,16 +47,13 @@ namespace AgntsChatUI.Views.Components
             {
                 if (this._isMultiSelectMode)
                 {
-                    // In multi-select mode, toggle the agent's selection
                     agent.IsSelected = !agent.IsSelected;
                     viewModel.OnAgentSelectionChanged(agent);
-                    
-                    // Clear the selection to allow for multiple selections
                     comboBox.SelectedItem = null;
                 }
                 else
                 {
-                    // In single-select mode, ensure only one agent remains selected
+                    // Clear other selections
                     foreach (AgentDefinition other in viewModel.AvailableAgents)
                     {
                         if (!ReferenceEquals(other, agent) && other.IsSelected)
@@ -66,13 +63,14 @@ namespace AgntsChatUI.Views.Components
                         }
                     }
 
+                    // Set new selection
                     viewModel.SelectedAgents.Clear();
                     agent.IsSelected = true;
                     viewModel.SelectedAgents.Add(agent);
                     viewModel.OnAgentSelectionChanged(agent);
                     
-                    // Update dropdown selection
-                    this.UpdateDropdownSelection();
+                    // Keep the selection visible in single mode
+                    // Don't clear comboBox.SelectedItem here
                 }
             }
         }
@@ -116,10 +114,21 @@ namespace AgntsChatUI.Views.Components
                         vm.OnAgentSelectionChanged(other);
                     }
                 }
-            }
 
-            // Update dropdown selection when switching modes
-            this.UpdateDropdownSelection();
+                // Set the ComboBox to show the selected agent in single mode
+                if (this._agentDropdown != null && keep != null)
+                {
+                    this._agentDropdown.SelectedItem = keep;
+                }
+            }
+            else if (this._isMultiSelectMode)
+            {
+                // Clear the ComboBox selection in multi mode
+                if (this._agentDropdown != null)
+                {
+                    this._agentDropdown.SelectedItem = null;
+                }
+            }
         }
 
         private void OnRemoveAgentClicked(object? sender, RoutedEventArgs e)
@@ -187,7 +196,12 @@ namespace AgntsChatUI.Views.Components
             {
                 // Update the UI to reflect the current state
                 this.UpdateMultiSelectToggleState();
-                this.UpdateDropdownSelection();
+                
+                // Ensure dropdown shows correct selection after DataContext is set
+                if (this._agentDropdown != null)
+                {
+                    this.UpdateDropdownSelection();
+                }
             }
         }
 
@@ -214,11 +228,15 @@ namespace AgntsChatUI.Views.Components
                 if (!this._isMultiSelectMode && viewModel.SelectedAgents.Count > 0)
                 {
                     // In single mode, show the first selected agent
-                    this._agentDropdown.SelectedItem = viewModel.SelectedAgents[0];
+                    var selectedAgent = viewModel.SelectedAgents[0];
+                    if (this._agentDropdown.SelectedItem != selectedAgent)
+                    {
+                        this._agentDropdown.SelectedItem = selectedAgent;
+                    }
                 }
-                else
+                else if (this._isMultiSelectMode)
                 {
-                    // In multi mode or no selection, clear the dropdown
+                    // In multi mode, clear the dropdown
                     this._agentDropdown.SelectedItem = null;
                 }
             }

@@ -32,7 +32,10 @@
 				<!-- Agent Dropdown -->
 				<ComboBox Name="AgentDropdown"
 				          ItemsSource="{Binding AvailableAgents}"
-				          Width="120"
+				          MinWidth="120"
+				          Height="36"
+				          Padding="8,6"
+				          VerticalContentAlignment="Center"
 				          MaxHeight="200"
 				          HorizontalAlignment="Left"
 				          VerticalAlignment="Center"
@@ -95,6 +98,22 @@
 							</Border>
 						</DataTemplate>
 					</ComboBox.ItemTemplate>
+					<ComboBox.SelectionBoxItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Border Width="16" Height="16" CornerRadius="8" Background="#4285f4">
+									<TextBlock Text="🤖" Classes="Caption" 
+									           HorizontalAlignment="Center" 
+									           VerticalAlignment="Center" 
+									           FontSize="8"/>
+								</Border>
+								<TextBlock Text="{Binding Name}" 
+								           Classes="BodySmall" 
+								           FontWeight="Medium" 
+								           VerticalAlignment="Center"/>
+							</StackPanel>
+						</DataTemplate>
+					</ComboBox.SelectionBoxItemTemplate>
 					<ComboBox.PlaceholderText>
 						🤖 Select Agent
 					</ComboBox.PlaceholderText>
@@ -102,9 +121,11 @@
 				
 				<!-- Multi-Select Toggle -->
 				<Button Name="MultiSelectToggle"
-				        Classes="SecondaryButton"
-				        Width="28" 
-				        Height="28"
+				        Padding="4,2"
+				        Background="Transparent"
+				        BorderBrush="#cbd5e1"
+				        BorderThickness="1"
+				        CornerRadius="6"
 				        ToolTip.Tip="Toggle multi-agent selection"
 				        Click="OnMultiSelectToggleClicked">
 					<TextBlock Text="Multi" 
@@ -145,7 +166,12 @@
 									           Foreground="White" 
 									           VerticalAlignment="Center"/>
 									<Button Grid.Column="1" 
-									        Classes="IconButton" 
+									        Background="White"
+									        BorderThickness="0"
+									        CornerRadius="8"
+									        Padding="2"
+									        HorizontalContentAlignment="Center"
+									        VerticalContentAlignment="Center"
 									        Click="OnRemoveAgentClicked"
 									        ToolTip.Tip="Remove agent"
 									        Margin="4,0,0,0"
@@ -155,7 +181,10 @@
 										<TextBlock Text="×" 
 										           Classes="Caption" 
 										           FontWeight="Bold" 
-										           Foreground="White"/>
+										           Foreground="#dc2626"
+										           FontSize="12"
+										           HorizontalAlignment="Center"
+										           VerticalAlignment="Center"/>
 									</Button>
 								</Grid>
 							</Border>
@@ -179,8 +208,12 @@
 				
 				<!-- Agent Management Panel Toggle -->
 				<Button Name="AgentPanelToggle"
-				        Classes="SecondaryButton"
-				        Padding="6,4"
+				        Padding="8,6"
+				        Background="#f8fafc"
+				        BorderBrush="#cbd5e1"
+				        BorderThickness="1"
+				        CornerRadius="6"
+				        MinWidth="60"
 				        ToolTip.Tip="Open agent management panel"
 				        Command="{Binding ToggleAgentPanelCommand}">
 					<TextBlock Text="Agents" 
@@ -192,8 +225,11 @@
 				
 				<!-- Kernel Configuration -->
 				<Button Name="KernelConfigButton"
-				        Classes="SecondaryButton"
 				        Padding="6,4"
+				        Background="Transparent"
+				        BorderBrush="#cbd5e1"
+				        BorderThickness="1"
+				        CornerRadius="6"
 				        ToolTip.Tip="Configure kernel settings"
 				        Command="{Binding OpenKernelConfigurationCommand}">
 					<TextBlock Text="Config" 

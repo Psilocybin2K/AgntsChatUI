@@ -286,7 +286,7 @@
         }
 
         [RelayCommand]
-        private void SendMessage()
+        private async void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(this.MessageText) || !this.SelectedAgents.Any())
             {
@@ -309,12 +309,16 @@
             );
 
             this.Messages.Add(userMessage);
-            ScrollToBottomRequested?.Invoke();
-
+            
             // Set loading states on UI thread
             this.IsTyping = true;
             this.IsOrchestrationRunning = true;
-            ScrollToBottomRequested?.Invoke();
+            
+            // Ensure UI is updated and scrolled immediately
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                ScrollToBottomRequested?.Invoke();
+            });
 
             // Run the heavy work on background thread
             _ = Task.Run(async () =>
@@ -335,22 +339,9 @@
                     // Add to chat history
                     this._chatHistory.AddUserMessage(messageWithContext);
 
-                    // Create bot message on UI thread
-                    MessageResult botMessage = new MessageResult(
-                        "🤖",
-                        "",
-                        DateTime.Now,
-                        false
-                    );
-
-                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        this.Messages.Add(botMessage);
-                        ScrollToBottomRequested?.Invoke();
-                    });
-
                     StringBuilder responseBuilder = new StringBuilder();
                     Dictionary<string, string> kernelArgs = this.GetKernelArgumentsDictionary();
+                    MessageResult? botMessage = null;
 
                     // Create orchestration with selected agents
                     Microsoft.SemanticKernel.Agents.Orchestration.Sequential.SequentialOrchestration orchestration = await this._chatAgentFactory.CreateOrchestration(selectedAgents);
@@ -368,35 +359,74 @@
                         {
                             responseBuilder.Append(chunk);
                             
-                            // Update UI on main thread
-                            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                            // Create bot message on first chunk
+                            if (botMessage == null)
                             {
-                                botMessage.Content = responseBuilder.ToString();
-                                
-                                if (responseBuilder.Length % 50 == 0)
+                                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                                 {
+                                    botMessage = new MessageResult(
+                                        "🤖",
+                                        responseBuilder.ToString(),
+                                        DateTime.Now,
+                                        false
+                                    );
+                                    this.Messages.Add(botMessage);
                                     ScrollToBottomRequested?.Invoke();
-                                }
-                            });
+                                });
+                            }
+                            else
+                            {
+                                // Update existing bot message
+                                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                                {
+                                    botMessage.Content = responseBuilder.ToString();
+                                    
+                                    if (responseBuilder.Length % 50 == 0)
+                                    {
+                                        ScrollToBottomRequested?.Invoke();
+                                    }
+                                });
+                            }
                         }
 
-                        ChatResponseLog chatResponse = new ChatResponseLog(
-                            botMessage.Content,
-                            selectedAgents.First().Name,
-                            DateTime.UtcNow
-                        );
-                        this._logger.LogInformation("ChatResponse {@ChatResponse}", JsonSerializer.Serialize(chatResponse, new JsonSerializerOptions { WriteIndented = true }));
+                        if (botMessage != null)
+                        {
+                            ChatResponseLog chatResponse = new ChatResponseLog(
+                                botMessage.Content,
+                                selectedAgents.First().Name,
+                                DateTime.UtcNow
+                            );
+                            this._logger.LogInformation("ChatResponse {@ChatResponse}", JsonSerializer.Serialize(chatResponse, new JsonSerializerOptions { WriteIndented = true }));
+                        }
                     }
                     catch (Exception)
                     {
                         // Fallback to single agent if orchestration fails
                         if (selectedAgents.Count() > 1)
                         {
-                            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                            // Create bot message for fallback if it doesn't exist
+                            if (botMessage == null)
                             {
-                                botMessage.Content = $"Orchestration failed, falling back to single agent processing...\n\n";
-                                ScrollToBottomRequested?.Invoke();
-                            });
+                                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                                {
+                                    botMessage = new MessageResult(
+                                        "🤖",
+                                        "Orchestration failed, falling back to single agent processing...\n\n",
+                                        DateTime.Now,
+                                        false
+                                    );
+                                    this.Messages.Add(botMessage);
+                                    ScrollToBottomRequested?.Invoke();
+                                });
+                            }
+                            else
+                            {
+                                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                                {
+                                    botMessage.Content = $"Orchestration failed, falling back to single agent processing...\n\n";
+                                    ScrollToBottomRequested?.Invoke();
+                                });
+                            }
 
                             // Use the first selected agent as fallback
                             ChatAgent fallbackAgent = ChatAgentFactory.CreateAgent(
@@ -412,11 +442,14 @@
                                 
                                 await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                                 {
-                                    botMessage.Content = responseBuilder.ToString();
-
-                                    if (responseBuilder.Length % 50 == 0)
+                                    if (botMessage != null)
                                     {
-                                        ScrollToBottomRequested?.Invoke();
+                                        botMessage.Content = responseBuilder.ToString();
+
+                                        if (responseBuilder.Length % 50 == 0)
+                                        {
+                                            ScrollToBottomRequested?.Invoke();
+                                        }
                                     }
                                 });
                             }
@@ -433,7 +466,10 @@
                         await this._chatAgentFactory.StopRuntimeAsync();
                     }
 
-                    this._chatHistory.AddAssistantMessage(botMessage.Content);
+                    if (botMessage != null)
+                    {
+                        this._chatHistory.AddAssistantMessage(botMessage.Content);
+                    }
                 }
                 catch (Exception ex)
                 {

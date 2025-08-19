@@ -20,15 +20,14 @@
 		</Border>
 
 		<!-- Slide-out Panel with Animation -->
-		<Border Width="300"
-		        HorizontalAlignment="Right"
+		<Border HorizontalAlignment="Right"
 		        Background="White"
 		        BorderBrush="#e8eaed"
 		        BorderThickness="1,0,0,0"
 		        Name="SlidePanel"
 		        IsVisible="{Binding ChatViewModel.IsAgentPanelOpen}">
 			<Border.RenderTransform>
-				<TranslateTransform X="0"/>
+				<TranslateTransform X="300"/>
 			</Border.RenderTransform>
 			<Border.Transitions>
 				<Transitions>
@@ -43,57 +42,107 @@
 				</Grid.RowDefinitions>
 
 				<!-- Header -->
-				<Border Grid.Row="0" Padding="16" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
+				<Border Grid.Row="0" Padding="12" BorderBrush="#e8eaed" BorderThickness="0,0,0,1">
 					<Grid>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="*"/>
 							<ColumnDefinition Width="Auto"/>
 						</Grid.ColumnDefinitions>
 						<TextBlock Grid.Column="0" Text="Agents" Classes="TitleSmall"/>
-						<Button Grid.Column="1" Classes="SecondaryButton" Command="{Binding ChatViewModel.ToggleAgentPanelCommand}">
-							<TextBlock Text="Close" Classes="BodySmall"/>
+						<Button Grid.Column="1" Command="{Binding ChatViewModel.ToggleAgentPanelCommand}"
+						        Padding="8,6" MinWidth="0" Background="Transparent" BorderBrush="#e2e8f0" BorderThickness="1" CornerRadius="6">
+							<TextBlock Text="Close" Classes="Caption"/>
 						</Button>
 					</Grid>
 				</Border>
 
 				<!-- Content: Compact Agent List -->
-				<Border Grid.Row="1" Padding="12">
+				<Border Grid.Row="1" Padding="10">
 					<Border.DataContext>
 						<Binding Path="AgentManagementViewModel"/>
 					</Border.DataContext>
-					<StackPanel Spacing="8">
-						<Button Classes="PrimaryButton" Command="{Binding AddAgentCommand}">
-							<TextBlock Text="New Agent" Classes="BodyMedium"/>
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
+						
+						<!-- New Agent Button -->
+						<Button Grid.Row="0" Command="{Binding AddAgentCommand}" Padding="12,8" MinWidth="0" CornerRadius="8" Background="{DynamicResource PrimaryBlue}" BorderThickness="0" Margin="0,0,0,8">
+							<TextBlock Text="New Agent" Classes="BodySmall" Foreground="White"/>
 						</Button>
 
-						<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+						<!-- Scrollable Agents List -->
+						<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
 							<ItemsControl ItemsSource="{Binding Agents}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>
-										<Border Classes="InteractiveCard" Padding="12" Margin="0,0,0,8">
-											<Grid>
-												<Grid.ColumnDefinitions>
-													<ColumnDefinition Width="*"/>
-													<ColumnDefinition Width="Auto"/>
-													<ColumnDefinition Width="Auto"/>
-												</Grid.ColumnDefinitions>
-												<StackPanel Grid.Column="0" Spacing="2">
-													<TextBlock Classes="BodyMedium" Text="{Binding Name}"/>
-													<TextBlock Classes="Caption" Text="{Binding Description}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
-												</StackPanel>
-												<Button Grid.Column="1" Classes="SecondaryButton" Command="{Binding $parent[ItemsControl].DataContext.EditAgentCommand}" CommandParameter="{Binding}">
-													<TextBlock Text="Edit" Classes="BodySmall"/>
-												</Button>
-												<Button Grid.Column="2" Classes="SecondaryButton" Command="{Binding $parent[ItemsControl].DataContext.DeleteAgentCommand}" CommandParameter="{Binding}">
-													<TextBlock Text="Del" Classes="BodySmall"/>
-												</Button>
-										</Grid>
-									</Border>
-								</DataTemplate>
+										<Border Classes="InteractiveCard" Padding="2" Margin="0,0,0,8" CornerRadius="8" Name="AgentCard">
+											<!-- Animated Border Container -->
+											<Border CornerRadius="6" Padding="2" BorderThickness="2" Name="AnimatedBorder" IsVisible="False">
+												<Border.BorderBrush>
+													<LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+														<LinearGradientBrush.GradientStops>
+															<GradientStop Color="#e8eaed" Offset="0"/>
+															<GradientStop Color="#e8eaed" Offset="0.45"/>
+															<GradientStop Color="#4285f4" Offset="0.48"/>
+															<GradientStop Color="#4285f4" Offset="0.52"/>
+															<GradientStop Color="#e8eaed" Offset="0.55"/>
+															<GradientStop Color="#e8eaed" Offset="1"/>
+														</LinearGradientBrush.GradientStops>
+													</LinearGradientBrush>
+												</Border.BorderBrush>
+												<Border CornerRadius="4" Background="#f8f9fa" Padding="8">
+													<Grid>
+														<Grid.ColumnDefinitions>
+															<ColumnDefinition Width="*"/>
+															<ColumnDefinition Width="Auto"/>
+															<ColumnDefinition Width="Auto"/>
+														</Grid.ColumnDefinitions>
+														<StackPanel Grid.Column="0" Spacing="2">
+															<TextBlock Classes="BodySmall" Text="{Binding Name}" FontWeight="Medium"/>
+															<TextBlock Classes="Caption" Text="{Binding Description}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+														</StackPanel>
+														<Button Grid.Column="1" Command="{Binding $parent[ItemsControl].DataContext.EditAgentCommand}" CommandParameter="{Binding}"
+														        Padding="8,6" MinWidth="0" Background="Transparent" BorderBrush="#e2e8f0" BorderThickness="1" CornerRadius="8" Margin="4,0,2,0">
+															<TextBlock Text="Edit" Classes="Caption"/>
+														</Button>
+														<Button Grid.Column="2" Command="{Binding $parent[ItemsControl].DataContext.DeleteAgentCommand}" CommandParameter="{Binding}"
+														        Padding="8,6" MinWidth="0" Background="Transparent" BorderBrush="#e2e8f0" BorderThickness="1" CornerRadius="8" Margin="2,0,0,0">
+															<TextBlock Text="Del" Classes="Caption"/>
+														</Button>
+													</Grid>
+												</Border>
+											</Border>
+											
+											<!-- Regular Content (shown when not hovered) -->
+											<Border CornerRadius="6" Background="#f8f9fa" Padding="8" Name="RegularContent">
+												<Grid>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition Width="Auto"/>
+														<ColumnDefinition Width="Auto"/>
+													</Grid.ColumnDefinitions>
+													<StackPanel Grid.Column="0" Spacing="2">
+														<TextBlock Classes="BodySmall" Text="{Binding Name}" FontWeight="Medium"/>
+														<TextBlock Classes="Caption" Text="{Binding Description}" TextTrimming="CharacterEllipsis" MaxLines="1"/>
+													</StackPanel>
+													<Button Grid.Column="1" Command="{Binding $parent[ItemsControl].DataContext.EditAgentCommand}" CommandParameter="{Binding}"
+													        Padding="8,6" MinWidth="0" Background="Transparent" BorderBrush="#e2e8f0" BorderThickness="1" CornerRadius="8" Margin="4,0,2,0">
+														<TextBlock Text="Edit" Classes="Caption"/>
+													</Button>
+													<Button Grid.Column="2" Command="{Binding $parent[ItemsControl].DataContext.DeleteAgentCommand}" CommandParameter="{Binding}"
+													        Padding="8,6" MinWidth="0" Background="Transparent" BorderBrush="#e2e8f0" BorderThickness="1" CornerRadius="8" Margin="2,0,0,0">
+														<TextBlock Text="Del" Classes="Caption"/>
+													</Button>
+												</Grid>
+											</Border>
+										</Border>
+									</DataTemplate>
 								</ItemsControl.ItemTemplate>
 							</ItemsControl>
 						</ScrollViewer>
-					</StackPanel>
+					</Grid>
 				</Border>
 
 				<!-- Footer -->
