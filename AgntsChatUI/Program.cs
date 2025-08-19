@@ -12,9 +12,6 @@
         [STAThread]
         public static void Main(string[] args)
         {
-            Environment.SetEnvironmentVariable("AOAI_API_KEY", "");
-            Environment.SetEnvironmentVariable("AOAI_ENDPOINT", "");
-
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);
         }
